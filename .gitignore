@@ -1,0 +1,13 @@
+### IntelliJ IDEA ###
+.idea/
+
+### Java & Maven ###
+target/
+*.class
+
+### Needed ###
+!mvnw
+!mvnw.cmd
+!.mvn/
+!lib/
+!lib/contract.jar
