@@ -62,6 +62,11 @@ public class StdVehicle implements Vehicle {
     return pcs.getPropertyChangeListeners(PROP_POSITION);
   }
 
+  @Override
+  public String toString() {
+    return id + " " + size + " " + horizontal + " " + position.getX() + " " + position.getY();
+  }
+
   // COMMANDES
 
   @Override
