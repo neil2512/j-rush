@@ -3,53 +3,65 @@ package jrush.model;
 import util.Contract;
 
 import java.beans.PropertyVetoException;
+import java.io.IOException;
 
 public class StdGameEngine implements GameEngine {
 
-  // ATTRIBUTS
+    // ATTRIBUTS
 
-  private final Board board;
-  private Vehicle selectedVehicle;
-  private int moveCount;
+    private final Vehicle selectedVehicle;
+    private Board board;
+    private int moveCount;
 
-  // CONSTRUCTEUR
+    // CONSTRUCTEUR
 
-  public StdGameEngine() {
-    this.board = null;
-    this.selectedVehicle = null;
-    this.moveCount = 0;
-  }
+    public StdGameEngine() {
+        this.board = null;
+        this.selectedVehicle = null;
+        this.moveCount = 0;
+    }
 
-  // REQUÊTES
+    // REQUÊTES
 
-  @Override
-  public boolean isLoaded() {
-    return (board != null);
-  }
+    @Override
+    public boolean isLoaded() {
+        return (board != null);
+    }
 
-  @Override
-  public boolean isVehicleSelected() {
-    return (selectedVehicle != null);
-  }
+    @Override
+    public boolean isVehicleSelected() {
+        return (selectedVehicle != null);
+    }
 
-  @Override
-  public Vehicle getSelectedVehicle() {
-    return selectedVehicle;
-  }
+    @Override
+    public Vehicle getSelectedVehicle() {
+        return selectedVehicle;
+    }
 
-  @Override
-  public int getMoveCount() {
-    return moveCount;
-  }
+    @Override
+    public int getMoveCount() {
+        return moveCount;
+    }
 
-  // COMMANDES
+    @Override
+    public Board getBoard() {
+        return board;
+    }
 
-  @Override
-  public void moveVehicle(int delta) throws PropertyVetoException {
-    Contract.checkCondition(isLoaded(), "!isLoaded()");
-    Contract.checkCondition(isVehicleSelected(), "!isVehicleSelected()");
-    selectedVehicle.move(delta);
-    moveCount++;
-  }
+    // COMMANDES
+
+    @Override
+    public void loadBoard(String filename) throws IOException {
+        Contract.checkCondition(filename != null, "filename == null");
+        this.board = LevelHandler.loadBoard(filename);
+    }
+
+    @Override
+    public void moveVehicle(int delta) throws PropertyVetoException {
+        Contract.checkCondition(isLoaded(), "!isLoaded()");
+        Contract.checkCondition(isVehicleSelected(), "!isVehicleSelected()");
+        selectedVehicle.move(delta);
+        moveCount++;
+    }
 
 }
