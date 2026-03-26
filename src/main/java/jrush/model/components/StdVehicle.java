@@ -71,8 +71,8 @@ public class StdVehicle implements Vehicle {
 
     @Override
     public String toString() {
-        return this.type.getId() + " " + this.type.getSize() + " " +
-               horizontal + " " + position.getX() + " " + position.getY();
+        return this.type.getId() + ";" +
+               horizontal + ";" + position.getX() + ";" + position.getY();
     }
 
     // COMMANDES
