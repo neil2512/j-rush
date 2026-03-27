@@ -5,6 +5,7 @@ import jrush.util.Move;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Le moteur de jeu est l'interface principale du modèle. Il permet de charger
@@ -35,6 +36,16 @@ public interface GameEngine {
      * de jeu n'est chargé.
      */
     Board getBoard();
+
+    /**
+     * Retourne une liste des mouvements effectués depuis le chargement du
+     * plateau de jeu. Si aucun plateau de jeu n'est chargé, retourne une liste
+     * vide.
+     *
+     * @return Une liste des mouvements effectués depuis le chargement du
+     * plateau de jeu, ou une liste vide si aucun plateau de jeu n'est chargé.
+     */
+    List<Move> getHistory();
 
     /**
      * Retourne true si un plateau de jeu est chargé, false sinon.
