@@ -83,9 +83,9 @@ public class GameView extends BorderPane {
     // OUTILS
 
     private void updateControls() {
-        undoBtn.setDisable(!engine.canUndo());
-        redoBtn.setDisable(!engine.canRedo());
-        resetBtn.setDisable(!engine.canUndo());
+        undoBtn.setDisable(!engine.canUndoBoardMove());
+        redoBtn.setDisable(!engine.canRedoBoardMove());
+        resetBtn.setDisable(!engine.canUndoBoardMove());
         boardGraphic.setDisable(engine.checkWinCondition());
     }
 
@@ -131,7 +131,7 @@ public class GameView extends BorderPane {
             @Override
             public void handle(ActionEvent event) {
                 try {
-                    engine.undoMove();
+                    engine.undoBoardMove();
                 } catch (PropertyVetoException e) {
                     throw new RuntimeException(e);
                 }
@@ -142,7 +142,7 @@ public class GameView extends BorderPane {
             @Override
             public void handle(ActionEvent event) {
                 try {
-                    engine.redoMove();
+                    engine.redoBoardMove();
                 } catch (PropertyVetoException e) {
                     throw new RuntimeException(e);
                 }

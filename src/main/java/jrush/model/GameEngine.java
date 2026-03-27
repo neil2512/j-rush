@@ -5,7 +5,6 @@ import jrush.util.Move;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
-import java.util.List;
 
 /**
  * Le moteur de jeu est l'interface principale du modèle. Il permet de charger
@@ -36,16 +35,6 @@ public interface GameEngine {
      * de jeu n'est chargé.
      */
     Board getBoard();
-
-    /**
-     * Retourne une liste des mouvements effectués depuis le chargement du
-     * plateau de jeu. Si aucun plateau de jeu n'est chargé, retourne une liste
-     * vide.
-     *
-     * @return Une liste des mouvements effectués depuis le chargement du
-     * plateau de jeu, ou une liste vide si aucun plateau de jeu n'est chargé.
-     */
-    List<Move> getHistory();
 
     /**
      * Retourne true si un plateau de jeu est chargé, false sinon.
@@ -87,14 +76,15 @@ public interface GameEngine {
      *
      * @return true si un mouvement peut être annulé, false sinon.
      */
-    boolean canUndo();
+    boolean canUndoBoardMove();
+
 
     /**
      * Retourne true si un mouvement peut être refait, false sinon.
      *
      * @return true si un mouvement peut être refait, false sinon.
      */
-    boolean canRedo();
+    boolean canRedoBoardMove();
 
     /**
      * Retourne un tableau des écouteurs de changements de propriété
@@ -121,17 +111,6 @@ public interface GameEngine {
     void loadBoard(String filename) throws IOException;
 
     /**
-     * Réinitialise le plateau de jeu en remettant tous les véhicules à leur
-     * position initiale.
-     *
-     * <pre>
-     * Préconditions :
-     *      isLoaded()
-     * </pre>
-     */
-    void resetBoard();
-
-    /**
      * Déplace un véhicule d'une certaine distance. Le déplacement doit être
      * valide selon les règles du jeu, sinon une exception est levée.
      *
@@ -153,38 +132,59 @@ public interface GameEngine {
 
 
     /**
-     * Ajoute un mouvement à l'historique des mouvements du moteur de jeu.
+     * Enregistre un mouvement dans l'historique du plateau de jeu.
      *
-     * @param move Le mouvement à ajouter à l'historique des mouvements du
-     * moteur de jeu.
-     */
-    void addMove(Move move);
-
-    /**
-     * Annule le dernier mouvement effectué. Le mouvement annulé doit être
-     * valide selon les règles du jeu, sinon une exception est levée.
      * <pre>
      * Préconditions :
-     *      canUndo()
+     *      move != null
+     * </pre>
+     *
+     * @param move Le mouvement à enregistrer.
+     */
+    void recordBoardMove(Move move);
+
+
+    /**
+     * Annule le dernier mouvement effectué sur le plateau de jeu. Le mouvement
+     * annulé doit être valide selon les règles du jeu, sinon une exception est
+     * levée.
+     *
+     * <pre>
+     * Préconditions :
+     *    canUndoBoardMove()
      * </pre>
      *
      * @throws PropertyVetoException Si le mouvement annulé n'est pas valide
      * selon les règles du jeu.
      */
-    void undoMove() throws PropertyVetoException;
+    void undoBoardMove() throws PropertyVetoException;
+
 
     /**
-     * Refait le dernier mouvement annulé. Le mouvement refait doit être valide
-     * selon les règles du jeu, sinon une exception est levée.
+     * Refait le dernier mouvement annulé sur le plateau de jeu. Le mouvement
+     * refait doit être valide selon les règles du jeu, sinon une exception est
+     * levée.
+     *
      * <pre>
      * Préconditions :
-     *      canRedo()
+     *    canRedoBoardMove()
      * </pre>
      *
      * @throws PropertyVetoException Si le mouvement refait n'est pas valide
      * selon les règles du jeu.
      */
-    void redoMove() throws PropertyVetoException;
+    void redoBoardMove() throws PropertyVetoException;
+
+    /**
+     * Réinitialise le plateau de jeu à son état initial tel qu'il a été
+     * chargé.
+     *
+     * <pre>
+     * Préconditions :
+     *      isLoaded()
+     * </pre>
+     */
+    void resetBoard();
 
     /**
      * Ajoute un écouteur de changements de propriété au moteur de jeu.
