@@ -10,16 +10,12 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class StdGameEngine implements GameEngine {
 
     // ATTRIBUTS
 
     private Board board;
-    private List<Move> history;
-    private int cursor;
     private int moveCount;
 
     private final PropertyChangeSupport pcs;
@@ -28,8 +24,6 @@ public class StdGameEngine implements GameEngine {
 
     public StdGameEngine() {
         this.board = null;
-        this.history = new ArrayList<>();
-        this.cursor = -1;
         this.moveCount = 0;
 
         pcs = new PropertyChangeSupport(this);
@@ -40,11 +34,6 @@ public class StdGameEngine implements GameEngine {
     @Override
     public Board getBoard() {
         return board;
-    }
-
-    @Override
-    public List<Move> getHistory() {
-        return new ArrayList<>(history);
     }
 
     @Override
@@ -63,9 +52,9 @@ public class StdGameEngine implements GameEngine {
         Contract.checkCondition(isLoaded(), "!isLoaded()");
         for (Vehicle v : board.getVehicles()) {
             if (v.getId().equals(Vehicle.WIN_CAR.getId())) {
-                boolean correctCol =
-                        v.getPosition().getY() == Board.EXIT_POSITION.getY();
                 boolean correctRow =
+                        v.getPosition().getY() == Board.EXIT_POSITION.getY();
+                boolean correctCol =
                         (v.getPosition().getX() + v.getSize() - 1) ==
                         Board.EXIT_POSITION.getX();
                 return correctCol && correctRow;
@@ -75,14 +64,13 @@ public class StdGameEngine implements GameEngine {
     }
 
     @Override
-    public boolean canUndo() {
-        return isLoaded() && !checkWinCondition() && cursor >= 0;
+    public boolean canUndoBoardMove() {
+        return isLoaded() && !checkWinCondition() && board.canUndo();
     }
 
     @Override
-    public boolean canRedo() {
-        return isLoaded() && !checkWinCondition() &&
-               cursor < history.size() - 1;
+    public boolean canRedoBoardMove() {
+        return isLoaded() && !checkWinCondition() && board.canRedo();
     }
 
     @Override
@@ -102,8 +90,6 @@ public class StdGameEngine implements GameEngine {
     public void resetBoard() {
         Contract.checkCondition(isLoaded(), "!isLoaded()");
         board.reset();
-        history.clear();
-        cursor = -1;
         setMoveCount(0);
     }
 
@@ -116,29 +102,23 @@ public class StdGameEngine implements GameEngine {
     }
 
     @Override
-    public void addMove(Move move) {
+    public void recordBoardMove(Move move) {
         Contract.checkCondition(move != null, "move == null");
-        if (cursor < history.size() - 1) {
-            history = new ArrayList<>(history.subList(0, cursor + 1));
-        }
-        history.add(move);
-        cursor++;
+        board.record(move);
         setMoveCount(moveCount + 1);
     }
 
     @Override
-    public void undoMove() throws PropertyVetoException {
-        Contract.checkCondition(canUndo(), "!canUndo()");
-        history.get(cursor).undo();
-        cursor--;
+    public void undoBoardMove() throws PropertyVetoException {
+        Contract.checkCondition(canUndoBoardMove(), "!canUndo()");
+        board.undo();
         setMoveCount(moveCount + 1);
     }
 
     @Override
-    public void redoMove() throws PropertyVetoException {
-        Contract.checkCondition(canRedo(), "!canRedo()");
-        cursor++;
-        history.get(cursor).redo();
+    public void redoBoardMove() throws PropertyVetoException {
+        Contract.checkCondition(canRedoBoardMove(), "!canRedo()");
+        board.redo();
         setMoveCount(moveCount + 1);
     }
 

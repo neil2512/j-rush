@@ -2,6 +2,7 @@ package jrush.model.components;
 
 import jrush.model.Board;
 import jrush.model.Vehicle;
+import jrush.util.Move;
 import jrush.util.Position;
 import util.Contract;
 
@@ -20,11 +21,16 @@ public class StdBoard implements Board, VetoableChangeListener {
     private final Map<String, Vehicle> vehicles;
     private final Map<String, Position> initials;
 
+    private List<Move> history;
+    private int cursor;
+
     // CONSTRUCTEUR
 
     public StdBoard() {
         this.vehicles = new HashMap<>();
         this.initials = new HashMap<>();
+        this.history = new ArrayList<>();
+        this.cursor = -1;
     }
 
     // REQUÊTES
@@ -32,6 +38,21 @@ public class StdBoard implements Board, VetoableChangeListener {
     @Override
     public List<Vehicle> getVehicles() {
         return new ArrayList<>(vehicles.values());
+    }
+
+    @Override
+    public List<Move> getHistory() {
+        return new ArrayList<>(history);
+    }
+
+    @Override
+    public boolean canUndo() {
+        return cursor >= 0;
+    }
+
+    @Override
+    public boolean canRedo() {
+        return cursor < history.size() - 1;
     }
 
     // COMMANDES
@@ -52,6 +73,30 @@ public class StdBoard implements Board, VetoableChangeListener {
     }
 
     @Override
+    public void record(Move move) {
+        Contract.checkCondition(move != null, "move == null");
+        if (cursor < history.size() - 1) {
+            history = new ArrayList<>(history.subList(0, cursor + 1));
+        }
+        history.add(move);
+        cursor++;
+    }
+
+    @Override
+    public void undo() throws PropertyVetoException {
+        Contract.checkCondition(canUndo(), "!canUndo()");
+        history.get(cursor).undo();
+        cursor--;
+    }
+
+    @Override
+    public void redo() throws PropertyVetoException {
+        Contract.checkCondition(canRedo(), "!canRedo()");
+        cursor++;
+        history.get(cursor).redo();
+    }
+
+    @Override
     public void reset() {
         for (Vehicle v : vehicles.values()) {
             Position pos = initials.get(v.getId());
@@ -59,6 +104,8 @@ public class StdBoard implements Board, VetoableChangeListener {
                 ((StdVehicle) v).setPosition(pos);
             }
         }
+        history.clear();
+        cursor = -1;
     }
 
     @Override

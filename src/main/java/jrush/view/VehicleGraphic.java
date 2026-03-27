@@ -138,7 +138,7 @@ public class VehicleGraphic extends Rectangle {
 
                 int totalDelta = finalGridPos - gridAnchor;
                 if (totalDelta != 0) {
-                    engine.addMove(new Move(vehicle, totalDelta));
+                    engine.recordBoardMove(new Move(vehicle, totalDelta));
                 }
             }
         });
