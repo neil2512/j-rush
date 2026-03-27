@@ -1,5 +1,9 @@
-package jrush.model;
+package jrush.model.logic;
 
+import jrush.model.Board;
+import jrush.model.components.StdBoard;
+import jrush.model.components.StdVehicle;
+import jrush.model.components.VehicleType;
 import jrush.util.Position;
 import util.Contract;
 
@@ -7,7 +11,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class LevelHandler {
+public final class LevelHandler {
 
     // ATTRIBUTS
 
@@ -28,10 +32,11 @@ public class LevelHandler {
             while ((line = buff.readLine()) != null) {
                 String[] vehicleInfo = line.split(";");
                 if (vehicleInfo.length != 4) {
-                    return null;
+                    throw new IllegalArgumentException(
+                            "Invalid line format: " + line);
                 }
                 String id = vehicleInfo[0];
-                boolean isHorizontal = Boolean.parseBoolean(vehicleInfo[1]);
+                boolean isHorizontal = "1".equals(vehicleInfo[1]);
                 int x = Integer.parseInt(vehicleInfo[2]);
                 int y = Integer.parseInt(vehicleInfo[3]);
                 try {

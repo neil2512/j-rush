@@ -8,7 +8,7 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import jrush.model.GameEngine;
-import jrush.model.StdGameEngine;
+import jrush.model.logic.StdGameEngine;
 
 import java.io.File;
 
@@ -17,7 +17,7 @@ public class TestView {
     // ATTRIBUTS
 
     private final Stage stage;
-    private StackPane root;
+    private final StackPane root;
     private final GameEngine model;
 
     private final Button loadButton;

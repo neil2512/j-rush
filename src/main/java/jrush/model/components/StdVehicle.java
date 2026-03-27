@@ -1,6 +1,7 @@
-package jrush.model;
+package jrush.model.components;
 
 import javafx.scene.paint.Color;
+import jrush.model.Vehicle;
 import util.Contract;
 import jrush.util.Position;
 
@@ -19,7 +20,7 @@ public class StdVehicle implements Vehicle {
 
     // CONSTRUCTEUR
 
-    StdVehicle(VehicleType type, boolean horizontal, Position position) {
+    public StdVehicle(VehicleType type, boolean horizontal, Position position) {
         Contract.checkCondition(type != null, "type == null");
         Contract.checkCondition(position != null, "position == null");
 
@@ -78,8 +79,7 @@ public class StdVehicle implements Vehicle {
 
     @Override
     public void move(int delta) throws PropertyVetoException {
-        Contract.checkCondition(delta == -1 || delta == 1,
-                                "delta != -1 && delta " + "!= 1");
+        Contract.checkCondition(delta != 0, "delta == 0");
         Position oldPos = position;
         Position newPos = new Position(position.getX(), position.getY());
         if (isHorizontal()) {
@@ -88,6 +88,26 @@ public class StdVehicle implements Vehicle {
             newPos.addY(delta);
         }
         vcs.fireVetoableChange(PROP_POSITION, oldPos, newPos);
+        position = newPos;
+        pcs.firePropertyChange(PROP_POSITION, oldPos, newPos);
+    }
+
+    /**
+     * Change la position du véhicule. Cette méthode est utilisée pour
+     * réinitialiser la position du véhicule à son état initial. Elle ne doit
+     * pas être utilisée pour déplacer le véhicule pendant le jeu, car elle ne
+     * vérifie pas les règles de déplacement.
+     *
+     * <pre>
+     * Préconditions :
+     *    newPos != null
+     * </pre>
+     *
+     * @param newPos La nouvelle position du véhicule.
+     */
+    void setPosition(Position newPos) {
+        Contract.checkCondition(newPos != null, "newPos == null");
+        Position oldPos = this.position;
         position = newPos;
         pcs.firePropertyChange(PROP_POSITION, oldPos, newPos);
     }

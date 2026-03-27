@@ -1,5 +1,7 @@
-package jrush.model;
+package jrush.model.components;
 
+import jrush.model.Board;
+import jrush.model.Vehicle;
 import jrush.util.Position;
 import util.Contract;
 
@@ -16,11 +18,13 @@ public class StdBoard implements Board, VetoableChangeListener {
     // ATTRIBUTS
 
     private final Map<String, Vehicle> vehicles;
+    private final Map<String, Position> initials;
 
     // CONSTRUCTEUR
 
     public StdBoard() {
         this.vehicles = new HashMap<>();
+        this.initials = new HashMap<>();
     }
 
     // REQUÊTES
@@ -39,6 +43,7 @@ public class StdBoard implements Board, VetoableChangeListener {
             validatePlacement(vehicle.getPosition(), vehicle.getSize(),
                               vehicle.isHorizontal(), vehicle.getId(), null);
             vehicles.put(vehicle.getId(), vehicle);
+            initials.put(vehicle.getId(), vehicle.getPosition());
             vehicle.addVetoableChangeListener(this);
         } catch (PropertyVetoException e) {
             throw new IllegalArgumentException(
@@ -47,13 +52,36 @@ public class StdBoard implements Board, VetoableChangeListener {
     }
 
     @Override
+    public void reset() {
+        for (Vehicle v : vehicles.values()) {
+            Position pos = initials.get(v.getId());
+            if (v instanceof StdVehicle) {
+                ((StdVehicle) v).setPosition(pos);
+            }
+        }
+    }
+
+    @Override
     public void vetoableChange(PropertyChangeEvent evt)
             throws PropertyVetoException {
-
         Vehicle v = (Vehicle) evt.getSource();
+        Position oldPos = (Position) evt.getOldValue();
         Position newPos = (Position) evt.getNewValue();
 
-        validatePlacement(newPos, v.getSize(), v.isHorizontal(), v.getId(), v);
+        int deltaX = Integer.compare(newPos.getX(), oldPos.getX());
+        int deltaY = Integer.compare(newPos.getY(), oldPos.getY());
+
+        int distance = Math.max(Math.abs(newPos.getX() - oldPos.getX()),
+                                Math.abs(newPos.getY() - oldPos.getY()));
+
+        for (int i = 1; i <= distance; i++) {
+            Position intermediatePos =
+                    new Position(oldPos.getX() + (i * deltaX),
+                                 oldPos.getY() + (i * deltaY));
+
+            validatePlacement(intermediatePos, v.getSize(), v.isHorizontal(),
+                              v.getId(), v);
+        }
     }
 
     // OUTILS

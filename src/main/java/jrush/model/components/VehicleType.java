@@ -1,4 +1,4 @@
-package jrush.model;
+package jrush.model.components;
 
 import javafx.scene.paint.Color;
 
@@ -10,12 +10,21 @@ import javafx.scene.paint.Color;
  */
 public enum VehicleType {
     RED_CAR("REDCAR", 2, Color.RED),
-    BLU_CAR("BLUCAR", 2, Color.BLUE),
     YEL_CAR("YELCAR", 2, Color.YELLOW),
-    GRE_CAR("GRECAR", 2, Color.GREEN),
-    BLU_TCK("BLUTCK", 3, Color.BLUE),
-    YEL_TCK("YELTCK", 3, Color.YELLOW),
-    GRE_TCK("GRETCK", 3, Color.GREEN);
+    GRN_CAR("GRNCAR", 2, Color.GREEN),
+    ORA_CAR("ORACAR", 2, Color.ORANGE),
+    BLU_CAR("BLUCAR", 2, Color.BLUE),
+    PUR_CAR("PURCAR", 2, Color.PURPLE),
+    PNK_CAR("PNKCAR", 2, Color.PINK),
+    LGR_CAR("LGRCAR", 2, Color.LIGHTGREEN),
+    LBL_CAR("LBLCAR", 2, Color.LIGHTBLUE),
+    BRN_CAR("BRNCAR", 2, Color.BROWN),
+    GRA_CAR("GRACAR", 2, Color.GRAY),
+    MAR_CAR("MARCAR", 2, Color.MAROON),
+    YEL_TRK("YELTRK", 3, Color.YELLOW),
+    BLU_TRK("BLUTRK", 3, Color.BLUE),
+    GRN_TRK("GRNTRK", 3, Color.GREEN),
+    PUR_TRK("PURTRK", 3, Color.PURPLE);
 
     // ATTRIBUTS
 
