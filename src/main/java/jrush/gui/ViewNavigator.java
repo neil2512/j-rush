@@ -1,10 +1,7 @@
 package jrush.gui;
 
 import javafx.scene.Scene;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import jrush.model.GameEngine;
-import jrush.model.StdGameEngine;
 import jrush.view.GameView;
 import jrush.view.HomeView;
 import util.Contract;

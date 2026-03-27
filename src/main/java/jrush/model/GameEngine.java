@@ -1,5 +1,8 @@
 package jrush.model;
 
+import jrush.util.Move;
+
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 
@@ -14,45 +17,15 @@ import java.io.IOException;
  * <pre>
  *     Invariant :
  *          isLoaded() <==> getBoard() != null
- *          isVehicleSelected() <==> getSelectedVehicle() != null
  * </pre>
  */
 public interface GameEngine {
 
+    // CONSTANTES
+
+    String PROP_MOVECOUNT = "move_count";
+
     // REQUÊTES
-
-    /**
-     * Retourne true si un plateau de jeu est chargé, false sinon.
-     *
-     * @return true si un plateau de jeu est chargé, false sinon.
-     */
-    boolean isLoaded();
-
-    /**
-     * Retourne true si un véhicule est sélectionné, false sinon.
-     *
-     * @return true si un véhicule est sélectionné, false sinon.
-     */
-    boolean isVehicleSelected();
-
-    /**
-     * Retourne le véhicule actuellement sélectionné. Si aucun véhicule n'est
-     * sélectionné, retourne null.
-     *
-     * @return Le véhicule actuellement sélectionné, ou null si aucun véhicule
-     * n'est sélectionné.
-     */
-    Vehicle getSelectedVehicle();
-
-    /**
-     * Retourne le nombre de mouvements effectués depuis le chargement du
-     * plateau de jeu. Un mouvement est défini comme un déplacement valide d'un
-     * véhicule.
-     *
-     * @return Le nombre de mouvements effectués depuis le chargement du plateau
-     * de jeu.
-     */
-    int getMoveCount();
 
     /**
      * Retourne le plateau de jeu actuellement chargé. Si aucun plateau de jeu
@@ -62,6 +35,64 @@ public interface GameEngine {
      * de jeu n'est chargé.
      */
     Board getBoard();
+
+    /**
+     * Retourne true si un plateau de jeu est chargé, false sinon.
+     *
+     * @return true si un plateau de jeu est chargé, false sinon.
+     */
+    boolean isLoaded();
+
+    /**
+     * Retourne le nombre de mouvements effectués depuis le chargement du
+     * plateau de jeu. Un mouvement est défini comme un déplacement valide d'un
+     * véhicule.
+     *
+     * <pre>
+     * Préconditions :
+     *      isLoaded()
+     * </pre>
+     *
+     * @return Le nombre de mouvements effectués depuis le chargement du plateau
+     * de jeu.
+     */
+    int getMoveCount();
+
+    /**
+     * Retourne un booléen décrivant l'état de victoire de la partie
+     * actuellement en cours.
+     *
+     * <pre>
+     * Préconditions :
+     *      isLoaded()
+     * </pre>
+     *
+     * @return Le booléen qui décrit l'état de victoire
+     */
+    boolean checkWinCondition();
+
+    /**
+     * Retourne true si un mouvement peut être annulé, false sinon.
+     *
+     * @return true si un mouvement peut être annulé, false sinon.
+     */
+    boolean canUndo();
+
+    /**
+     * Retourne true si un mouvement peut être refait, false sinon.
+     *
+     * @return true si un mouvement peut être refait, false sinon.
+     */
+    boolean canRedo();
+
+    /**
+     * Retourne un tableau des écouteurs de changements de propriété
+     * actuellement enregistrés auprès du moteur de jeu.
+     *
+     * @return Un tableau des écouteurs de changements de propriété actuellement
+     * enregistrés auprès du moteur de jeu.
+     */
+    PropertyChangeListener[] getPropertyChangeListeners();
 
     // COMMANDES
 
@@ -79,21 +110,94 @@ public interface GameEngine {
     void loadBoard(String filename) throws IOException;
 
     /**
-     * Déplace le véhicule actuellement sélectionné d'une distance donnée dans
-     * la direction de son orientation. Le déplacement est valide si le véhicule
-     * ne sort pas du plateau et ne chevauche pas un autre véhicule. Si le
-     * déplacement est valide, la position du véhicule est mise à jour et les
-     * écouteurs de changements de position sont notifiés. Si le déplacement
-     * n'est pas valide, une exception de type PropertyVetoException est levée
-     * pour indiquer que le déplacement a été refusé.
+     * Réinitialise le plateau de jeu en remettant tous les véhicules à leur
+     * position initiale.
      *
      * <pre>
      * Préconditions :
-     *      delta == -1 || delta == 1
+     *      isLoaded()
+     * </pre>
+     */
+    void resetBoard();
+
+    /**
+     * Déplace un véhicule d'une certaine distance. Le déplacement doit être
+     * valide selon les règles du jeu, sinon une exception est levée.
+     *
+     * <pre>
+     * Préconditions :
+     *      isLoaded()
+     *      vehicle != null
      * </pre>
      *
-     * @param delta La distance de déplacement. Doit être égal à -1 ou 1.
+     * @param vehicle Le véhicule à déplacer.
+     * @param delta La distance à déplacer. Un delta positif déplace le véhicule
+     * dans sa direction de déplacement, tandis qu'un delta négatif le déplace
+     * dans la direction opposée.
+     *
+     * @throws PropertyVetoException Si le déplacement n'est pas valide selon
+     * les règles du jeu.
      */
-    void moveVehicle(int delta) throws PropertyVetoException;
+    void moveVehicle(Vehicle vehicle, int delta) throws PropertyVetoException;
+
+
+    /**
+     * Ajoute un mouvement à l'historique des mouvements du moteur de jeu.
+     *
+     * @param move Le mouvement à ajouter à l'historique des mouvements du
+     * moteur de jeu.
+     */
+    void addMove(Move move);
+
+    /**
+     * Annule le dernier mouvement effectué. Le mouvement annulé doit être
+     * valide selon les règles du jeu, sinon une exception est levée.
+     * <pre>
+     * Préconditions :
+     *      canUndo()
+     * </pre>
+     *
+     * @throws PropertyVetoException Si le mouvement annulé n'est pas valide
+     * selon les règles du jeu.
+     */
+    void undoMove() throws PropertyVetoException;
+
+    /**
+     * Refait le dernier mouvement annulé. Le mouvement refait doit être valide
+     * selon les règles du jeu, sinon une exception est levée.
+     * <pre>
+     * Préconditions :
+     *      canRedo()
+     * </pre>
+     *
+     * @throws PropertyVetoException Si le mouvement refait n'est pas valide
+     * selon les règles du jeu.
+     */
+    void redoMove() throws PropertyVetoException;
+
+    /**
+     * Ajoute un écouteur de changements de propriété au moteur de jeu.
+     *
+     * <pre>
+     * Préconditions :
+     *      listener != null
+     * </pre>
+     *
+     * @param listener L'écouteur de changements de propriété à ajouter.
+     */
+    void addPropertyChangeListener(PropertyChangeListener listener);
+
+
+    /**
+     * Supprime un écouteur de changements de propriété du moteur de jeu.
+     *
+     * <pre>
+     * Préconditions :
+     *      listener != null
+     * </pre>
+     *
+     * @param listener L'écouteur de changements de propriété à supprimer.
+     */
+    void removePropertyChangeListener(PropertyChangeListener listener);
 
 }

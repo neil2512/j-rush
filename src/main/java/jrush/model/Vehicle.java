@@ -1,6 +1,7 @@
 package jrush.model;
 
 import javafx.scene.paint.Color;
+import jrush.model.components.VehicleType;
 import jrush.util.Position;
 
 import java.beans.PropertyChangeListener;
@@ -84,20 +85,21 @@ public interface Vehicle {
     Position getPosition();
 
     /**
-     * Retourne les écouteurs de changements de position du véhicule. Ces
-     * écouteurs sont utilisés pour vérifier la validité des déplacements avant
-     * qu'ils ne soient effectués.
+     * Retourne un tableau des écouteurs de veto de changements de propriétés
+     * actuellement enregistrés auprès du véhicule.
      *
-     * @return Les écouteurs de changements de position du véhicule.
+     * @return Un tableau des écouteurs de veto de changements de propriétés
+     * actuellement enregistrés auprès du véhicule.
      */
     VetoableChangeListener[] getVetoableChangeListeners();
 
+
     /**
-     * Retourne les écouteurs de changements de position du véhicule. Ces
-     * écouteurs sont utilisés pour notifier les changements de position après
-     * qu'ils ont été effectués.
+     * Retourne un tableau des écouteurs de changements de propriété
+     * actuellement enregistrés auprès du véhicule.
      *
-     * @return Les écouteurs de changements de position du véhicule.
+     * @return Un tableau des écouteurs de changements de propriété actuellement
+     * enregistrés auprès du véhicule.
      */
     PropertyChangeListener[] getPropertyChangeListeners();
 
@@ -114,10 +116,10 @@ public interface Vehicle {
      *
      * <pre>
      * Préconditions :
-     *      delta == -1 || delta == 1
+     *      delta != 0
      * </pre>
      *
-     * @param delta La distance de déplacement. Doit être égal à -1 ou 1.
+     * @param delta La distance de déplacement.
      *
      * @throws PropertyVetoException Si le déplacement est refusé par un
      * écouteur de changements de position.
@@ -125,58 +127,32 @@ public interface Vehicle {
     void move(int delta) throws PropertyVetoException;
 
     /**
-     * Ajoute un écouteur de changements de position au véhicule. Cet écouteur
-     * est utilisé pour vérifier la validité des déplacements avant qu'ils ne
-     * soient effectués.
+     * Ajoute un écouteur de veto de changements de propriétés au véhicule.
      *
-     * <pre>
-     * Préconditions :
-     *      listener != null
-     * </pre>
-     *
-     * @param listener L'écouteur de changements de position à ajouter.
+     * @param listener L'écouteur de veto de changements de propriétés à
+     * ajouter.
      */
     void addVetoableChangeListener(VetoableChangeListener listener);
 
     /**
-     * Supprime un écouteur de changements de position du véhicule. Cet écouteur
-     * est utilisé pour vérifier la validité des déplacements avant qu'ils ne
-     * soient effectués.
+     * Supprime un écouteur de veto de changements de propriétés du véhicule.
      *
-     * <pre>
-     * Préconditions :
-     *      listener != null
-     * </pre>
-     *
-     * @param listener L'écouteur de changements de position à supprimer.
+     * @param listener L'écouteur de veto de changements de propriétés à
+     * supprimer.
      */
     void removeVetoableChangeListener(VetoableChangeListener listener);
 
     /**
-     * Ajoute un écouteur de changements de position au véhicule. Cet écouteur
-     * est utilisé pour notifier les changements de position après qu'ils ont
-     * été effectués.
+     * Ajoute un écouteur de changements de propriété au véhicule.
      *
-     * <pre>
-     * Préconditions :
-     *      listener != null
-     * </pre>
-     *
-     * @param listener L'écouteur de changements de position à ajouter.
+     * @param listener L'écouteur de changements de propriété à ajouter.
      */
     void addPropertyChangeListener(PropertyChangeListener listener);
 
     /**
-     * Supprime un écouteur de changements de position du véhicule. Cet écouteur
-     * est utilisé pour notifier les changements de position après qu'ils ont
-     * été effectués.
+     * Supprime un écouteur de changements de propriété du véhicule.
      *
-     * <pre>
-     * Préconditions :
-     *      listener != null
-     * </pre>
-     *
-     * @param listener L'écouteur de changements de position à supprimer.
+     * @param listener L'écouteur de changements de propriété à supprimer.
      */
     void removePropertyChangeListener(PropertyChangeListener listener);
 

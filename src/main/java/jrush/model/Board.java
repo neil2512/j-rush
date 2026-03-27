@@ -18,7 +18,7 @@ public interface Board {
     // CONSTANTES
 
     int GRID_SIZE = 6;
-    Position EXIT_POSITION = new Position(GRID_SIZE - 1, GRID_SIZE / 2);
+    Position EXIT_POSITION = new Position(GRID_SIZE - 1, (GRID_SIZE / 2) - 1);
 
     // REQUÊTES
 
@@ -42,4 +42,10 @@ public interface Board {
      * @param vehicle le véhicule à ajouter
      */
     void addVehicle(Vehicle vehicle);
+
+    /**
+     * Réinitialise le plateau de jeu en remettant tous les véhicules à leur
+     * position initiale.
+     */
+    void reset();
 }
