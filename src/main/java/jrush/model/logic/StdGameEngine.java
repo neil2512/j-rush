@@ -43,6 +43,11 @@ public class StdGameEngine implements GameEngine {
     }
 
     @Override
+    public List<Move> getHistory() {
+        return new ArrayList<>(history);
+    }
+
+    @Override
     public boolean isLoaded() {
         return (board != null);
     }
