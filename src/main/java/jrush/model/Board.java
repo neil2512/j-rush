@@ -39,8 +39,6 @@ public interface Board {
      */
     List<Move> getHistory();
 
-    // COMMANDES
-
     /**
      * Retourne true si un mouvement peut être annulé, false sinon.
      *
@@ -54,6 +52,30 @@ public interface Board {
      * @return true si un mouvement peut être refait, false sinon.
      */
     boolean canRedo();
+
+    /**
+     * Vérifie si un véhicule peut se déplacer d'une position à une autre selon
+     * les règles du jeu.
+     *
+     * @param vehicle Le véhicule à déplacer
+     * @param oldPos La position actuelle du véhicule
+     * @param newPos La position proposée pour le véhicule
+     *
+     * <pre>
+     * Préconditions :
+     *      vehicle != null
+     *      oldPos != null
+     *      newPos != null
+     * </pre>
+     *
+     * @return true si le déplacement est valide, false sinon
+     */
+    boolean canVehicleMove(
+            Vehicle vehicle, Position oldPos,
+            Position newPos
+    );
+
+    // COMMANDES
 
     /**
      * Ajoute un véhicule au plateau
