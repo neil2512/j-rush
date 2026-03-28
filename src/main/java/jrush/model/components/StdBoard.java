@@ -55,21 +55,43 @@ public class StdBoard implements Board, VetoableChangeListener {
         return cursor < history.size() - 1;
     }
 
+    @Override
+    public boolean canVehicleMove(
+            Vehicle vehicle, Position oldPos,
+            Position newPos
+    ) {
+        Contract.checkCondition(vehicle != null, "vehicle == null");
+        Contract.checkCondition(oldPos != null, "oldPos == null");
+        Contract.checkCondition(newPos != null, "newPos == null");
+        int deltaX = Integer.compare(newPos.getX(), oldPos.getX());
+        int deltaY = Integer.compare(newPos.getY(), oldPos.getY());
+
+        int distance = Math.max(Math.abs(newPos.getX() - oldPos.getX()),
+                                Math.abs(newPos.getY() - oldPos.getY()));
+
+        for (int i = 1; i <= distance; i++) {
+            Position intermediatePos =
+                    new Position(oldPos.getX() + (i * deltaX),
+                                 oldPos.getY() + (i * deltaY));
+
+            if (!validatePlacement(intermediatePos, vehicle)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     // COMMANDES
 
     @Override
     public void addVehicle(Vehicle vehicle) {
         Contract.checkCondition(vehicle != null, "vehicle == null");
-        try {
-            validatePlacement(vehicle.getPosition(), vehicle.getSize(),
-                              vehicle.isHorizontal(), vehicle.getId(), null);
-            vehicles.put(vehicle.getId(), vehicle);
-            initials.put(vehicle.getId(), vehicle.getPosition());
-            vehicle.addVetoableChangeListener(this);
-        } catch (PropertyVetoException e) {
-            throw new IllegalArgumentException(
-                    "Invalid starting position: " + e.getMessage());
+        if (!validatePlacement(vehicle.getPosition(), vehicle)) {
+            throw new IllegalArgumentException("Invalid starting position.");
         }
+        vehicles.put(vehicle.getId(), vehicle);
+        initials.put(vehicle.getId(), vehicle.getPosition());
+        vehicle.addVetoableChangeListener(this);
     }
 
     @Override
@@ -111,23 +133,13 @@ public class StdBoard implements Board, VetoableChangeListener {
     @Override
     public void vetoableChange(PropertyChangeEvent evt)
             throws PropertyVetoException {
-        Vehicle v = (Vehicle) evt.getSource();
+        Vehicle vehicle = (Vehicle) evt.getSource();
         Position oldPos = (Position) evt.getOldValue();
         Position newPos = (Position) evt.getNewValue();
 
-        int deltaX = Integer.compare(newPos.getX(), oldPos.getX());
-        int deltaY = Integer.compare(newPos.getY(), oldPos.getY());
-
-        int distance = Math.max(Math.abs(newPos.getX() - oldPos.getX()),
-                                Math.abs(newPos.getY() - oldPos.getY()));
-
-        for (int i = 1; i <= distance; i++) {
-            Position intermediatePos =
-                    new Position(oldPos.getX() + (i * deltaX),
-                                 oldPos.getY() + (i * deltaY));
-
-            validatePlacement(intermediatePos, v.getSize(), v.isHorizontal(),
-                              v.getId(), v);
+        if (!canVehicleMove(vehicle, oldPos, newPos)) {
+            throw new PropertyVetoException(
+                    "Invalid move for " + vehicle.getId(), null);
         }
     }
 
@@ -137,56 +149,46 @@ public class StdBoard implements Board, VetoableChangeListener {
      * Valide que le véhicule peut être placé à la position donnée sans sortir
      * du plateau ni entrer en collision avec d'autres véhicules.
      *
-     * @param pos Position proposée pour le véhicule
-     * @param size Taille du véhicule
-     * @param isHorizontal Orientation du véhicule (true si horizontal)
-     * @param id Identifiant du véhicule (pour les messages d'erreur)
-     * @param toIgnore Véhicule à ignorer lors de la vérification des
-     * collisions
+     * @param position Position proposée pour le véhicule
+     * @param vehicle Le véhicule à placer
      *
-     * @throws PropertyVetoException si la position est invalide (hors limites
-     * ou collision).
      */
-    private void validatePlacement(
-            Position pos, int size, boolean isHorizontal,
-            String id, Vehicle toIgnore
-    ) throws PropertyVetoException {
+    private boolean validatePlacement(Position position, Vehicle vehicle) {
+        int size = vehicle.getSize();
+        boolean isHorizontal = vehicle.isHorizontal();
 
-        if (pos.getX() < 0 || pos.getY() < 0 ||
-            (isHorizontal && pos.getX() + size > GRID_SIZE) ||
-            (!isHorizontal && pos.getY() + size > GRID_SIZE)) {
-            throw new PropertyVetoException("Out of bounds for " + id, null);
+        if (position.getX() < 0 || position.getY() < 0 ||
+            (isHorizontal && position.getX() + size > GRID_SIZE) ||
+            (!isHorizontal && position.getY() + size > GRID_SIZE)) {
+            return false;
         }
 
         for (Vehicle other : vehicles.values()) {
-            if (other == toIgnore) {
+            if (other == vehicle) {
                 continue;
             }
-            if (intersect(pos, size, isHorizontal, other.getPosition(),
-                          other.getSize(), other.isHorizontal())) {
-                throw new PropertyVetoException(
-                        "Collision between " + id + " and " + other.getId(),
-                        null);
+            if (intersect(position, vehicle, other)) {
+                return false;
             }
         }
+        return true;
     }
 
     /**
      * Vérifie si les deux véhicules se chevauchent à leurs positions données.
      *
-     * @param p1 Position du premier véhicule
-     * @param s1 Taille du premier véhicule
-     * @param h1 Orientation du premier véhicule (true si horizontal)
-     * @param p2 Position du second véhicule
-     * @param s2 Taille du second véhicule
-     * @param h2 Orientation du second véhicule (true si horizontal)
+     * @param v1 Premier véhicule
+     * @param v2 Deuxième véhicule
      *
      * @return true si les véhicules se chevauchent, false sinon
      */
-    private boolean intersect(
-            Position p1, int s1, boolean h1, Position p2,
-            int s2, boolean h2
-    ) {
+    private boolean intersect(Position p1, Vehicle v1, Vehicle v2) {
+        Position p2 = v2.getPosition();
+        int s1 = v1.getSize();
+        int s2 = v2.getSize();
+        boolean h1 = v1.isHorizontal();
+        boolean h2 = v2.isHorizontal();
+
         for (int i = 0; i < s1; i++) {
             int x1 = h1 ? p1.getX() + i : p1.getX();
             int y1 = h1 ? p1.getY() : p1.getY() + i;
