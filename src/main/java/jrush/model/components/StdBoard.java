@@ -33,11 +33,29 @@ public class StdBoard implements Board, VetoableChangeListener {
         this.cursor = -1;
     }
 
+    public StdBoard(Board other) {
+        this.vehicles = new HashMap<>();
+        this.initials = new HashMap<>(other.getInitialPositions());
+        this.history = new ArrayList<>();
+        this.cursor = -1;
+
+        for (Vehicle v : other.getVehicles()) {
+            Vehicle copy = new StdVehicle(v);
+            this.vehicles.put(copy.getId(), copy);
+            copy.addVetoableChangeListener(this);
+        }
+    }
+
     // REQUÊTES
 
     @Override
     public List<Vehicle> getVehicles() {
         return new ArrayList<>(vehicles.values());
+    }
+
+    @Override
+    public Map<String, Position> getInitialPositions() {
+        return new HashMap<>(initials);
     }
 
     @Override

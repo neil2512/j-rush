@@ -32,6 +32,18 @@ import java.beans.VetoableChangeListener;
  *          getColor() == type.getColor()
  *          isHorizontal() == horizontal
  *          getPosition() == position
+ *
+ * Constructeur :
+ *    Entrée :
+ *          Vehicle other
+ *    Préconditions :
+ *          other != null
+ *    Postconditions :
+ *          getId() == other.getId()
+ *          getSize() == other.getSize()
+ *          getColor() == other.getColor()
+ *          isHorizontal() == other.isHorizontal()
+ *          getPosition() == other.getPosition()
  * </pre>
  */
 public interface Vehicle {
