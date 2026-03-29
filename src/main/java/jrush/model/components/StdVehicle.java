@@ -2,6 +2,7 @@ package jrush.model.components;
 
 import javafx.scene.paint.Color;
 import jrush.model.Vehicle;
+import jrush.model.components.VehicleType;
 import util.Contract;
 import jrush.util.Position;
 
@@ -71,8 +72,8 @@ public class StdVehicle implements Vehicle {
 
     @Override
     public String toString() {
-        return this.type.getId() + " " + this.type.getSize() + " " +
-               horizontal + " " + position.getX() + " " + position.getY();
+        return this.type.getId() + ";" +
+               horizontal + ";" + position.getX() + ";" + position.getY();
     }
 
     // COMMANDES

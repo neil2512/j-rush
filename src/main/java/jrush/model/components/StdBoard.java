@@ -46,6 +46,12 @@ public class StdBoard implements Board, VetoableChangeListener {
     }
 
     @Override
+    public void setHistory(List<Move> history) {
+        this.history = history;
+    }
+
+
+    @Override
     public boolean canUndo() {
         return cursor >= 0;
     }
