@@ -2,9 +2,9 @@ package jrush.view;
 
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import jrush.model.Board;
-import util.Contract;
 
 import static jrush.model.Board.GRID_SIZE;
 
@@ -22,7 +22,8 @@ public class BoardGraphic extends Pane {
     // CONSTRUCTEURS
 
     public BoardGraphic() {
-        setPrefSize(CELL_SIZE * GRID_SIZE, CELL_SIZE * GRID_SIZE);
+        this.setMinSize(CELL_SIZE * GRID_SIZE, CELL_SIZE * GRID_SIZE);
+        this.setMaxSize(CELL_SIZE * GRID_SIZE, CELL_SIZE * GRID_SIZE);
         refresh();
     }
 
@@ -30,6 +31,9 @@ public class BoardGraphic extends Pane {
 
     // COMMANDES
 
+    /**
+     * Rafraîchit l'affichage du plateau de jeu en redessinant la grille.
+     */
     public void refresh() {
         getChildren().clear();
         drawGrid();
@@ -37,6 +41,10 @@ public class BoardGraphic extends Pane {
 
     // OUTILS
 
+    /**
+     * Dessine la grille du plateau de jeu en créant des rectangles pour chaque
+     * cellule.
+     */
     private void drawGrid() {
         for (int i = 0; i < GRID_SIZE; i++) {
             for (int j = 0; j < GRID_SIZE; j++) {
@@ -48,6 +56,28 @@ public class BoardGraphic extends Pane {
                 this.getChildren().add(cell);
             }
         }
+
+        drawExit();
+    }
+
+    /**
+     * Dessine une ligne verticale pour indiquer la position de la sortie sur le
+     * plateau de jeu.
+     */
+    private void drawExit() {
+        int xGrid = Board.EXIT_POSITION.getX();
+        int yGrid = Board.EXIT_POSITION.getY();
+
+        double xPos = (xGrid + 1) * CELL_SIZE;
+        double yStart = yGrid * CELL_SIZE;
+        double yEnd = (yGrid + 1) * CELL_SIZE;
+
+        Line exitLine = new Line(xPos, yStart, xPos, yEnd);
+
+        exitLine.setStroke(Color.BLACK);
+        exitLine.setStrokeWidth(4);
+
+        this.getChildren().add(exitLine);
     }
 
 }

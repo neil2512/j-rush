@@ -10,4 +10,6 @@ module jrush {
   exports jrush.model;
 
   opens jrush.gui to javafx.fxml;
+  exports jrush.model.components;
+  exports jrush.model.logic;
 }

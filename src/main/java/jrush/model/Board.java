@@ -1,7 +1,9 @@
 package jrush.model;
 
+import jrush.util.Move;
 import jrush.util.Position;
 
+import java.beans.PropertyVetoException;
 import java.util.List;
 
 /**
@@ -18,7 +20,7 @@ public interface Board {
     // CONSTANTES
 
     int GRID_SIZE = 6;
-    Position EXIT_POSITION = new Position(GRID_SIZE - 1, GRID_SIZE / 2);
+    Position EXIT_POSITION = new Position(GRID_SIZE - 1, (GRID_SIZE / 2) - 1);
 
     // REQUÊTES
 
@@ -28,6 +30,50 @@ public interface Board {
      * @return Une copie de la liste des véhicules actuellement sur la grille.
      */
     List<Vehicle> getVehicles();
+
+    /**
+     * Retourne la liste des mouvements effectués sur le plateau.
+     *
+     * @return Une copie de la liste des mouvements effectués sur le plateau,
+     * dans l'ordre chronologique.
+     */
+    List<Move> getHistory();
+
+    /**
+     * Retourne true si un mouvement peut être annulé, false sinon.
+     *
+     * @return true si un mouvement peut être annulé, false sinon.
+     */
+    boolean canUndo();
+
+    /**
+     * Retourne true si un mouvement peut être refait, false sinon.
+     *
+     * @return true si un mouvement peut être refait, false sinon.
+     */
+    boolean canRedo();
+
+    /**
+     * Vérifie si un véhicule peut se déplacer d'une position à une autre selon
+     * les règles du jeu.
+     *
+     * @param vehicle Le véhicule à déplacer
+     * @param oldPos La position actuelle du véhicule
+     * @param newPos La position proposée pour le véhicule
+     *
+     * <pre>
+     * Préconditions :
+     *      vehicle != null
+     *      oldPos != null
+     *      newPos != null
+     * </pre>
+     *
+     * @return true si le déplacement est valide, false sinon
+     */
+    boolean canVehicleMove(
+            Vehicle vehicle, Position oldPos,
+            Position newPos
+    );
 
     // COMMANDES
 
@@ -42,4 +88,50 @@ public interface Board {
      * @param vehicle le véhicule à ajouter
      */
     void addVehicle(Vehicle vehicle);
+
+    /**
+     * Enregistre un mouvement dans l'historique du plateau.
+     *
+     * <pre>
+     * Préconditions :
+     *      move != null
+     * </pre>
+     *
+     * @param move le mouvement à enregistrer
+     */
+    void record(Move move);
+
+    /**
+     * Annule le dernier mouvement effectué. Le mouvement annulé doit être
+     * valide selon les règles du jeu, sinon une exception est levée.
+     *
+     * <pre>
+     * Préconditions :
+     *      canUndo()
+     * </pre>
+     *
+     * @throws PropertyVetoException Si le mouvement annulé n'est pas valide
+     * selon les règles du jeu.
+     */
+    void undo() throws PropertyVetoException;
+
+    /**
+     * Refait le dernier mouvement annulé. Le mouvement refait doit être valide
+     * selon les règles du jeu, sinon une exception est levée.
+     *
+     * <pre>
+     * Préconditions :
+     *      canRedo()
+     * </pre>
+     *
+     * @throws PropertyVetoException Si le mouvement refait n'est pas valide
+     * selon les règles du jeu.
+     */
+    void redo() throws PropertyVetoException;
+
+    /**
+     * Réinitialise le plateau de jeu en remettant tous les véhicules à leur
+     * position initiale.
+     */
+    void reset();
 }
