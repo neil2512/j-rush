@@ -2,7 +2,6 @@ package jrush.model.components;
 
 import javafx.scene.paint.Color;
 import jrush.model.Vehicle;
-import jrush.model.components.VehicleType;
 import util.Contract;
 import jrush.util.Position;
 
@@ -28,6 +27,18 @@ public class StdVehicle implements Vehicle {
         this.type = type;
         this.horizontal = horizontal;
         this.position = position;
+
+        this.vcs = new VetoableChangeSupport(this);
+        this.pcs = new PropertyChangeSupport(this);
+    }
+
+    public StdVehicle(Vehicle other) {
+        Contract.checkCondition(other != null, "other == null");
+
+        this.type = VehicleType.fromId(other.getId());
+        this.horizontal = other.isHorizontal();
+        this.position = new Position(other.getPosition().getX(),
+                                     other.getPosition().getY());
 
         this.vcs = new VetoableChangeSupport(this);
         this.pcs = new PropertyChangeSupport(this);

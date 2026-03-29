@@ -5,6 +5,7 @@ import jrush.util.Position;
 
 import java.beans.PropertyVetoException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Un plateau est une grille de GRID_SIZE*GRID_SIZE cases. Elle contient une
@@ -13,6 +14,15 @@ import java.util.List;
  * Constructeur :
  *      Postconditions :
  *          getVehicles().size() == 0
+ * Constructeur :
+ *      Entrée :
+ *              Board other
+ *      Préconditions :
+ *              other != null
+ *      Postconditions :
+ *              getVehicles() contient une copie des vehicules contenus dans
+ *                  other.getVehicles()
+ *
  * </pre>
  */
 public interface Board {
@@ -30,6 +40,15 @@ public interface Board {
      * @return Une copie de la liste des véhicules actuellement sur la grille.
      */
     List<Vehicle> getVehicles();
+
+    /**
+     * Retourne une map associant les identifiants des véhicules à leurs
+     * positions initiales sur le plateau.
+     *
+     * @return Une map associant les identifiants des véhicules à leurs
+     * positions initiales sur le plateau.
+     */
+    Map<String, Position> getInitialPositions();
 
     /**
      * Retourne la liste des mouvements effectués sur le plateau.
