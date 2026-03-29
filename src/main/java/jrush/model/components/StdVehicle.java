@@ -2,6 +2,7 @@ package jrush.model.components;
 
 import javafx.scene.paint.Color;
 import jrush.model.Vehicle;
+import jrush.model.components.VehicleType;
 import util.Contract;
 import jrush.util.Position;
 

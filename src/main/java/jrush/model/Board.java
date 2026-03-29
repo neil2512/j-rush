@@ -40,6 +40,13 @@ public interface Board {
     List<Move> getHistory();
 
     /**
+     * Définit la liste des mouvements effectués sur le plateau.
+     *
+     * @param history La liste des mouvements à définir, dans l'ordre chronologique.
+     */
+    void setHistory(List<Move> history);
+
+    /**
      * Retourne true si un mouvement peut être annulé, false sinon.
      *
      * @return true si un mouvement peut être annulé, false sinon.

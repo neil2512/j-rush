@@ -35,6 +35,13 @@ public class Move {
         this.delta = delta;
     }
 
+    // REQUÊTES
+
+    public String toString() {
+        return vehicle + ";" + delta;
+    }
+
+
     // COMMANDES
 
     /**

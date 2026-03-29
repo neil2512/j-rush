@@ -1,4 +1,4 @@
-package jrush.model;
+package jrush.model.components;
 
 import javafx.scene.paint.Color;
 
