@@ -9,7 +9,6 @@ import util.Contract;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyVetoException;
-import java.io.IOException;
 
 public class StdGameEngine implements GameEngine {
 
@@ -81,7 +80,7 @@ public class StdGameEngine implements GameEngine {
     // COMMANDES
 
     @Override
-    public void loadBoard(String filename) throws IOException {
+    public void loadBoard(String filename)  {
         Contract.checkCondition(filename != null, "filename == null");
         board = LevelHandler.loadBoard(filename);
     }

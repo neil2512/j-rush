@@ -1,8 +1,8 @@
-GRECAR;true;0;6
-PURTCK;false;0;3
+GRNCAR;true;3;5
+PURTRK;false;0;3
 ORACAR;false;0;0
-REDCAR;true;1;3
-BLUTCK;false;3;2
-GRETCK;true;2;0
+REDCAR;true;1;2
+BLUTRK;false;3;2
+GRNTRK;true;2;0
 BLUCAR;true;4;1
-YELTCK;false;5;3
+YELTRK;false;5;3

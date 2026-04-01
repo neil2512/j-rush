@@ -12,7 +12,7 @@ public class StdVehicle implements Vehicle {
     // ATTRIBUTS
 
     private final VehicleType type;
-    private final boolean horizontal;
+    private  boolean horizontal;
     private Position position;
 
     private final VetoableChangeSupport vcs;
@@ -73,12 +73,12 @@ public class StdVehicle implements Vehicle {
 
     @Override
     public VetoableChangeListener[] getVetoableChangeListeners() {
-        return vcs.getVetoableChangeListeners(PROP_POSITION);
+        return vcs.getVetoableChangeListeners();
     }
 
     @Override
     public PropertyChangeListener[] getPropertyChangeListeners() {
-        return pcs.getPropertyChangeListeners(PROP_POSITION);
+        return pcs.getPropertyChangeListeners();
     }
 
     @Override
@@ -117,7 +117,8 @@ public class StdVehicle implements Vehicle {
      *
      * @param newPos La nouvelle position du véhicule.
      */
-    void setPosition(Position newPos) {
+    @Override
+    public void setPosition(Position newPos){
         Contract.checkCondition(newPos != null, "newPos == null");
         Position oldPos = this.position;
         position = newPos;
@@ -125,23 +126,34 @@ public class StdVehicle implements Vehicle {
     }
 
     @Override
+    public void rotate() throws PropertyVetoException {
+        boolean old = horizontal;
+        boolean newVal = !horizontal;
+        vcs.fireVetoableChange(PROP_HORIZONTAL, old, newVal);
+        horizontal = newVal;
+        pcs.firePropertyChange(PROP_HORIZONTAL, old, newVal);
+    }
+
+    @Override
     public void addVetoableChangeListener(VetoableChangeListener listener) {
         vcs.addVetoableChangeListener(PROP_POSITION, listener);
+        vcs.addVetoableChangeListener(PROP_HORIZONTAL, listener);
     }
 
     @Override
     public void removeVetoableChangeListener(VetoableChangeListener listener) {
         vcs.removeVetoableChangeListener(PROP_POSITION, listener);
+        vcs.removeVetoableChangeListener(PROP_HORIZONTAL, listener);
     }
 
     @Override
     public void addPropertyChangeListener(PropertyChangeListener listener) {
-        pcs.addPropertyChangeListener(PROP_POSITION, listener);
+        pcs.addPropertyChangeListener(listener);
     }
 
     @Override
     public void removePropertyChangeListener(PropertyChangeListener listener) {
-        pcs.removePropertyChangeListener(PROP_POSITION, listener);
+        pcs.removePropertyChangeListener(listener);
     }
 
 }

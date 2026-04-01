@@ -105,6 +105,15 @@ public class StdBoard implements Board, VetoableChangeListener {
         return true;
     }
 
+    @Override
+    public boolean canPlaceVehicle(Vehicle vehicle, Position position) {
+        // Temporairement retirer le véhicule pour valider sans collision avec lui-même
+        vehicles.remove(vehicle.getId());
+        boolean valid = validatePlacement(position, vehicle);
+        vehicles.put(vehicle.getId(), vehicle);
+        return valid;
+    }
+
     // COMMANDES
 
     @Override
@@ -115,7 +124,17 @@ public class StdBoard implements Board, VetoableChangeListener {
         }
         vehicles.put(vehicle.getId(), vehicle);
         initials.put(vehicle.getId(), vehicle.getPosition());
+        vehicle.removeVetoableChangeListener(this);
         vehicle.addVetoableChangeListener(this);
+    }
+
+    @Override
+    public void removeVehicle(Vehicle vehicle) {
+        Contract.checkCondition(vehicle != null, "Vehicle == null");
+        Contract.checkCondition(vehicles.containsKey(vehicle.getId()), "Vehicle not on board");
+        vehicles.remove(vehicle.getId());
+        initials.remove(vehicle.getId());
+        vehicle.removeVetoableChangeListener(this);
     }
 
     @Override
@@ -158,13 +177,45 @@ public class StdBoard implements Board, VetoableChangeListener {
     public void vetoableChange(PropertyChangeEvent evt)
             throws PropertyVetoException {
         Vehicle vehicle = (Vehicle) evt.getSource();
-        Position oldPos = (Position) evt.getOldValue();
-        Position newPos = (Position) evt.getNewValue();
+        if (evt.getPropertyName().equals(Vehicle.PROP_POSITION)) {
+            Position oldPos = (Position) evt.getOldValue();
+            Position newPos = (Position) evt.getNewValue();
 
-        if (!canVehicleMove(vehicle, oldPos, newPos)) {
-            throw new PropertyVetoException(
-                    "Invalid move for " + vehicle.getId(), null);
+            if (!canVehicleMove(vehicle, oldPos, newPos)) {
+                throw new PropertyVetoException(
+                        "Invalid move for " + vehicle.getId(), null);
+            }
         }
+        if (evt.getPropertyName().equals(Vehicle.PROP_HORIZONTAL)) {
+            // Vérifier si la nouvelle orientation est valide
+            if (!canVehicleRotate(vehicle)) {
+                throw new PropertyVetoException("Invalid rotation for " + vehicle.getId(), null);
+            }
+        }
+    }
+
+    private boolean canVehicleRotate(Vehicle vehicle) {
+        int size = vehicle.getSize();
+        Position pos = vehicle.getPosition();
+        // Orientation inversée
+        boolean newHorizontal = !vehicle.isHorizontal();
+
+        // Vérifier les limites du plateau
+        if (newHorizontal && pos.getX() + size > GRID_SIZE) return false;
+        if (!newHorizontal && pos.getY() + size > GRID_SIZE) return false;
+
+        // Vérifier les collisions avec les autres véhicules
+        for (Vehicle other : vehicles.values()) {
+            // Simuler le véhicule avec la nouvelle orientation
+            if (other.getId().equals(vehicle.getId())) continue;
+            Vehicle rotated = new StdVehicle(
+                    VehicleType.fromId(vehicle.getId()),
+                    newHorizontal,
+                    pos
+            );
+            if (intersect(pos, rotated, other)) return false;
+        }
+        return true;
     }
 
     // OUTILS

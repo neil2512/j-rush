@@ -52,6 +52,7 @@ public interface Vehicle {
 
     VehicleType WIN_CAR = VehicleType.RED_CAR;
     String PROP_POSITION = "position";
+    String PROP_HORIZONTAL = "horizontal";
 
     // REQUÊTES
 
@@ -97,6 +98,11 @@ public interface Vehicle {
     Position getPosition();
 
     /**
+     * Inverse l'orientation du véhicule.
+     */
+    void rotate() throws PropertyVetoException;
+
+    /**
      * Retourne un tableau des écouteurs de veto de changements de propriétés
      * actuellement enregistrés auprès du véhicule.
      *
@@ -137,6 +143,17 @@ public interface Vehicle {
      * écouteur de changements de position.
      */
     void move(int delta) throws PropertyVetoException;
+
+    /**
+     * Change la position du véhicule librement, sans vérification des règles.
+     * Réservé à l'éditeur de niveaux et au reset de position.
+     *
+     * <pre>
+     * Préconditions :
+     *      position != null
+     * </pre>
+     */
+    void setPosition(Position position);
 
     /**
      * Ajoute un écouteur de veto de changements de propriétés au véhicule.

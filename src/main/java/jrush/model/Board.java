@@ -101,6 +101,25 @@ public interface Board {
             Position newPos
     );
 
+    /**
+     * Vérifie si un véhicule peut être placé à une position donnée sans
+     * sortir du plateau ni entrer en collision avec d'autres véhicules.
+     * Ne vérifie pas le chemin entre la position actuelle et la position
+     * cible, contrairement à canVehicleMove.
+     *
+     * @param vehicle Le véhicule à placer
+     * @param position La position proposée pour le véhicule
+     *
+     * <pre>
+     * Préconditions :
+     *      vehicle != null
+     *      position != null
+     * </pre>
+     *
+     * @return true si le placement est valide, false sinon
+     */
+    boolean canPlaceVehicle(Vehicle vehicle, Position position);
+
     // COMMANDES
 
     /**
@@ -114,6 +133,19 @@ public interface Board {
      * @param vehicle le véhicule à ajouter
      */
     void addVehicle(Vehicle vehicle);
+
+    /**
+     *   Supprime un véhicule au plateau
+     *
+     *   <pre>
+     *   Préconditions :
+     *       vehicle != null
+     *       board.getVehicles contains vehicle
+     *   </pre>
+     * @param vehicle le véhicule à supprimer
+     *
+    */
+    void removeVehicle(Vehicle vehicle);
 
     /**
      * Enregistre un mouvement dans l'historique du plateau.
