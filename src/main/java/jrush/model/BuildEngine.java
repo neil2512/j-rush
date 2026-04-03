@@ -43,6 +43,17 @@ public interface BuildEngine {
      */
     boolean isLoaded();
 
+    /**
+     * Retourne true si le niveau est valide, c'est-à-dire si la voiture
+     * rouge est présente sur le plateau, à l'horizontal et sur la ligne
+     * de sortie.
+     * <pre>
+     * Préconditions :
+     *      isLoaded()
+     * </pre>
+     */
+    boolean isValid();
+
     PropertyChangeListener[] getPropertyChangeListeners();
 
     // COMMANDES
@@ -87,17 +98,6 @@ public interface BuildEngine {
     void rotateAndMove(Vehicle vehicle, Position position, boolean horizontal)
             throws PropertyVetoException;
 
-    /**
-     * Déplace un véhicule vers une position libre du plateau.
-     * <pre>
-     * Préconditions :
-     *      isLoaded()
-     *      vehicle != null
-     *      position != null
-     *      getBoard.getVehicles().contains(vehicle)
-     * </pre>
-     */
-    void moveVehicleOnBoard(Vehicle vehicle, Position position)  throws PropertyVetoException;
 
     /**
      * Charge un plateau depuis un fichier.

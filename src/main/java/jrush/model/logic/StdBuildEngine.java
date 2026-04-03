@@ -36,6 +36,20 @@ public class StdBuildEngine implements BuildEngine {
     }
 
     @Override
+    public boolean isValid() {
+        Contract.checkCondition(isLoaded(), "!isLoaded()");
+        for (Vehicle v : board.getVehicles()) {
+            System.out.println("Vehicle: " + v.getId() + " horizontal: " + v.isHorizontal() + " y: " + v.getPosition().getY() + " EXIT_Y: " + Board.EXIT_POSITION.getY());
+            if (v.getId().equals(Vehicle.WIN_CAR.getId())
+                    && v.isHorizontal()
+                    && v.getPosition().getY() == Board.EXIT_POSITION.getY()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public PropertyChangeListener[] getPropertyChangeListeners() {
         return pcs.getPropertyChangeListeners(PROP_BOARD);
     }
@@ -52,11 +66,6 @@ public class StdBuildEngine implements BuildEngine {
     public void addVehicleOnBoard(Vehicle vehicle) {
         Contract.checkCondition(isLoaded(), "!isLoaded()");
         Contract.checkCondition(vehicle != null, "vehicle == null");
-        Contract.checkCondition(
-                board.getVehicles().stream()
-                        .noneMatch(v -> v.getId().equals(vehicle.getId())),
-                "vehicle already on board"
-        );
         board.addVehicle(vehicle);
         pcs.firePropertyChange(PROP_BOARD, null, vehicle);
     }
@@ -65,34 +74,9 @@ public class StdBuildEngine implements BuildEngine {
     public void removeVehicleFromBoard(Vehicle vehicle) {
         Contract.checkCondition(isLoaded(), "!isLoaded()");
         Contract.checkCondition(vehicle != null, "vehicle == null");
-        Contract.checkCondition(
-                board.getVehicles().stream()
-                        .anyMatch(v -> v.getId().equals(vehicle.getId())),
-                "vehicle not on board"
-        );
         board.removeVehicle(vehicle);
         pcs.firePropertyChange(PROP_BOARD, vehicle, null);
     }
-
-    @Override
-    public void moveVehicleOnBoard(Vehicle vehicle, Position position)
-            throws PropertyVetoException {
-        Contract.checkCondition(isLoaded(), "!isLoaded()");
-        Contract.checkCondition(vehicle != null, "vehicle == null");
-        Contract.checkCondition(position != null, "position == null");
-        Contract.checkCondition(
-                board.getVehicles().stream()
-                        .anyMatch(v -> v.getId().equals(vehicle.getId())),
-                "vehicle not on board"
-        );
-
-        if (!board.canPlaceVehicle(vehicle, position)) {
-            throw new PropertyVetoException("Invalid position", null);
-        }
-
-        vehicle.setPosition(position);
-    }
-
     @Override
     public void rotateAndMove(Vehicle vehicle, Position position, boolean horizontal)
             throws PropertyVetoException {
@@ -124,6 +108,7 @@ public class StdBuildEngine implements BuildEngine {
         // Appliquer la position
         vehicle.setPosition(position);vehicle.setPosition(position);
         board.addVehicle(vehicle);
+        pcs.firePropertyChange(PROP_BOARD,null,vehicle);
     }
 
     @Override

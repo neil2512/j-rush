@@ -6,7 +6,6 @@ import jrush.model.components.StdBoard;
 import jrush.model.components.StdVehicle;
 import jrush.util.Move;
 import jrush.util.Position;
-import util.Contract;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -99,6 +98,10 @@ public class LevelHandler {
     }
 
     public static void saveBoard(Board board, String fileName) {
+        // Forcer l'extension .txt
+        if (!fileName.endsWith(".txt")) {
+            fileName = fileName + ".txt";
+        }
         try( BufferedWriter buff = new BufferedWriter(new FileWriter(fileName, StandardCharsets.UTF_8))){
 
             List<Vehicle> vehicleList = board.getVehicles();

@@ -70,11 +70,12 @@ public class BuildView extends BorderPane {
 
         //OUTILS
 
-        private void updateControls() {
-            saveButton.setDisable(!engine.isLoaded());
-            resetButton.setDisable(!engine.isLoaded());
-            boardGraphic.setDisable(!engine.isLoaded());
-        }
+    private void updateControls() {
+        boolean loaded = engine.isLoaded();
+        saveButton.setDisable(!loaded || !engine.isValid());
+        resetButton.setDisable(!loaded);
+        boardGraphic.setDisable(!loaded);
+    }
 
         private void placeComponents() {
             Label title = new Label("Construire une carte");
@@ -115,6 +116,10 @@ public class BuildView extends BorderPane {
         }
 
     private void connectControllers() {
+        engine.addPropertyChangeListener(evt -> {
+            updateControls();
+        });
+
         // New Button
         newButton.setOnAction(e -> {
             engine.newBoard();
@@ -180,6 +185,9 @@ public class BuildView extends BorderPane {
     }
 
     private void connectBoardDrop() {
+        //Mettre un board au chargement
+        engine.newBoard();
+        updateControls();
         boardGraphic.setOnDragOver(event -> {
             if (event.getGestureSource() instanceof VehiclePreview
                     && event.getDragboard().hasString()) {

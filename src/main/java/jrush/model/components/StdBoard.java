@@ -108,10 +108,7 @@ public class StdBoard implements Board, VetoableChangeListener {
     @Override
     public boolean canPlaceVehicle(Vehicle vehicle, Position position) {
         // Temporairement retirer le véhicule pour valider sans collision avec lui-même
-        vehicles.remove(vehicle.getId());
-        boolean valid = validatePlacement(position, vehicle);
-        vehicles.put(vehicle.getId(), vehicle);
-        return valid;
+        return validatePlacement(position, vehicle);
     }
 
     // COMMANDES
@@ -124,7 +121,6 @@ public class StdBoard implements Board, VetoableChangeListener {
         }
         vehicles.put(vehicle.getId(), vehicle);
         initials.put(vehicle.getId(), vehicle.getPosition());
-        vehicle.removeVetoableChangeListener(this);
         vehicle.addVetoableChangeListener(this);
     }
 

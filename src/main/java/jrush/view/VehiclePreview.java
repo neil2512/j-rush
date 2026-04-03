@@ -99,6 +99,10 @@ public class VehiclePreview extends VBox {
                 boardGraphic.getChildren().remove(ghost);
                 ghost = null;
 
+                if (boardGraphic.getScene() != null) {
+                    boardGraphic.getScene().setOnKeyPressed(null);
+                }
+
                 // Convertir les coordonnées
                 javafx.geometry.Point2D local = boardGraphic.sceneToLocal(
                         releaseEvent.getSceneX(), releaseEvent.getSceneY()
@@ -120,6 +124,7 @@ public class VehiclePreview extends VBox {
                             engine, vehicle, boardGraphic
                     );
                     boardGraphic.getChildren().add(vge);
+                    vge.setSelected(true);
                 } catch (IllegalArgumentException e) {
                     // Position invalide
                 }

@@ -99,7 +99,7 @@ public class VehicleGraphicEditor extends Rectangle{
 
                 if (ghost == null) {
                     if (currentSelected != null) {
-                        currentSelected.deselect();
+                        currentSelected.setSelected(false);
                     }
                     setSelected(false);
                     ghost = new Rectangle();
@@ -155,6 +155,7 @@ public class VehicleGraphicEditor extends Rectangle{
 
                 try {
                     engine.rotateAndMove(vehicle, new Position(x, y), ghostHorizontal);
+                    setSelected(true);
                 } catch (PropertyVetoException e) {
                     // Position invalide, on ne fait rien
                 }
@@ -165,12 +166,12 @@ public class VehicleGraphicEditor extends Rectangle{
     }
 
 
-    // Sélectionne et désélectionne la voiture en s'occupant de colorié ou non le contour
-    private void setSelected(boolean selected) {
+    // Sélectionne et désélectionne la voiture en s'occupant de colorier ou non le contour
+    public void setSelected(boolean selected) {
         this.selected = selected;
         if (selected) {
             if (currentSelected != null && currentSelected != this) {
-                currentSelected.deselect();
+                currentSelected.setSelected(false);
             }
             currentSelected = this;
             this.setStroke(Color.YELLOW);
@@ -195,10 +196,6 @@ public class VehicleGraphicEditor extends Rectangle{
                 boardGraphic.getScene().setOnKeyPressed(null);
             }
         }
-    }
-
-    public void deselect() {
-        setSelected(false);
     }
 
 
