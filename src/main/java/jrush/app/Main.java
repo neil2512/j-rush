@@ -1,9 +1,12 @@
-package jrush;
+package jrush.app;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
-import jrush.gui.ViewNavigator;
+import jrush.app.gui.ViewNavigator;
 
+/**
+ * Point d'entrée de l'application JRush.
+ */
 public class Main extends Application {
 
     @Override

@@ -1,22 +1,25 @@
-package jrush.model;
+package jrush.app.model;
 
-import jrush.util.Move;
+import jrush.app.model.util.Move;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 
 /**
- * Le moteur de jeu est l'interface principale du modèle. Il permet de charger
- * un plateau de jeu, de sélectionner un véhicule et de le déplacer. Il fournit
- * également des méthodes pour vérifier l'état du jeu, comme le nombre de
- * mouvements effectués et si un véhicule est sélectionné. Le moteur de jeu est
- * responsable de la logique du jeu et de la validation des mouvements, en
- * s'assurant que les règles du jeu sont respectées.
+ * Interface représentant le moteur de jeu du jeu. Elle permet de charger un
+ * plateau de jeu, de déplacer des véhicules, d'annuler et de refaire des
+ * mouvements, et de vérifier les conditions de victoire.
  *
  * <pre>
- *     Invariant :
- *          isLoaded() <==> getBoard() != null
+ * Invariant :
+ *      – getBoard() == null <==> !isLoaded()
+ * Constructeur :
+ *      Postconditions :
+ *          – getBoard() == null
+ *          – !isLoaded()
+ *          - canUndoBoardMove() == canRedoBoardMove() == false
+ *          – getPropertyChangeListeners().length == 0
  * </pre>
  */
 public interface GameEngine {
@@ -98,17 +101,51 @@ public interface GameEngine {
     // COMMANDES
 
     /**
-     * Charge un plateau de jeu à partir d'un fichier.
+     * Tente de charger un plateau à partir d'un fichier. Le fichier doit être
+     * au format correct et contenir une configuration de plateau de jeu valide,
+     * sinon une exception est levée. En cas de réussite, les écouteurs de
+     * changements de propriété sont notifiés.
      *
      * <pre>
      * Préconditions :
      *      filename != null
      * </pre>
      *
-     * @param filename Le nom du fichier à partir duquel charger le plateau de
-     * jeu.
+     * @param filename Le nom du fichier à partir duquel charger le plateau
+     *
+     * @throws IOException Si une erreur d'entrée/sortie se produit lors de la
+     * lecture du fichier, ou si le fichier n'existe pas.
      */
     void loadBoard(String filename) throws IOException;
+
+    /**
+     * Tente d'enregistrer le plateau actuel du moteur de jeu dans un fichier.
+     * Le fichier doit être au format correct pour pouvoir être chargé
+     * ultérieurement, sinon une exception est levée.
+     *
+     * <pre>
+     * Préconditions :
+     *      filename != null
+     * </pre>
+     *
+     * @param filename Le nom du fichier dans lequel enregistrer le plateau
+     *
+     * @throws IOException Si une erreur d'entrée/sortie se produit lors de
+     * l'écriture du fichier, ou si le fichier ne peut pas être créé ou
+     * modifié.
+     */
+    void saveBoard(String filename) throws IOException;
+
+    /**
+     * Réinitialise le plateau de jeu à son état initial tel qu'il a été
+     * chargé. Les écouteurs de changements de propriété sont notifiés.
+     *
+     * <pre>
+     * Préconditions :
+     *      isLoaded()
+     * </pre>
+     */
+    void resetBoard();
 
     /**
      * Déplace un véhicule d'une certaine distance. Le déplacement doit être
@@ -132,10 +169,12 @@ public interface GameEngine {
 
 
     /**
-     * Enregistre un mouvement dans l'historique du plateau de jeu.
+     * Enregistre un mouvement dans l'historique du plateau de jeu. Les
+     * écouteurs de changements de propriété sont notifiés.
      *
      * <pre>
      * Préconditions :
+     *      isLoaded()
      *      move != null
      * </pre>
      *
@@ -143,15 +182,16 @@ public interface GameEngine {
      */
     void recordBoardMove(Move move);
 
-
     /**
      * Annule le dernier mouvement effectué sur le plateau de jeu. Le mouvement
      * annulé doit être valide selon les règles du jeu, sinon une exception est
-     * levée.
+     * levée. En cas de réussite, les écouteurs de changements de propriété sont
+     * notifiés.
      *
      * <pre>
      * Préconditions :
-     *    canUndoBoardMove()
+     *      isLoaded()
+     *      canUndoBoardMove()
      * </pre>
      *
      * @throws PropertyVetoException Si le mouvement annulé n'est pas valide
@@ -163,28 +203,19 @@ public interface GameEngine {
     /**
      * Refait le dernier mouvement annulé sur le plateau de jeu. Le mouvement
      * refait doit être valide selon les règles du jeu, sinon une exception est
-     * levée.
+     * levée. En cas de réussite, les écouteurs de changements de propriété sont
+     * notifiés.
      *
      * <pre>
      * Préconditions :
-     *    canRedoBoardMove()
+     *      isLoaded()
+     *      canRedoBoardMove()
      * </pre>
      *
      * @throws PropertyVetoException Si le mouvement refait n'est pas valide
      * selon les règles du jeu.
      */
     void redoBoardMove() throws PropertyVetoException;
-
-    /**
-     * Réinitialise le plateau de jeu à son état initial tel qu'il a été
-     * chargé.
-     *
-     * <pre>
-     * Préconditions :
-     *      isLoaded()
-     * </pre>
-     */
-    void resetBoard();
 
     /**
      * Ajoute un écouteur de changements de propriété au moteur de jeu.
@@ -194,7 +225,7 @@ public interface GameEngine {
      *      listener != null
      * </pre>
      *
-     * @param listener L'écouteur de changements de propriété à ajouter.
+     * @param listener L'écouteur de changements de propriété à ajouter
      */
     void addPropertyChangeListener(PropertyChangeListener listener);
 
@@ -207,7 +238,7 @@ public interface GameEngine {
      *      listener != null
      * </pre>
      *
-     * @param listener L'écouteur de changements de propriété à supprimer.
+     * @param listener L'écouteur de changements de propriété à supprimer
      */
     void removePropertyChangeListener(PropertyChangeListener listener);
 

@@ -1,9 +1,10 @@
-package jrush.model.components;
+package jrush.app.model.components;
 
 import javafx.scene.paint.Color;
-import jrush.model.Vehicle;
+import jrush.app.model.Vehicle;
+import jrush.app.model.util.Placement;
+import jrush.app.util.Position;
 import util.Contract;
-import jrush.util.Position;
 
 import java.beans.*;
 
@@ -12,7 +13,7 @@ public class StdVehicle implements Vehicle {
     // ATTRIBUTS
 
     private final VehicleType type;
-    private final boolean horizontal;
+    private boolean horizontal;
     private Position position;
 
     private final VetoableChangeSupport vcs;
@@ -73,18 +74,38 @@ public class StdVehicle implements Vehicle {
 
     @Override
     public VetoableChangeListener[] getVetoableChangeListeners() {
-        return vcs.getVetoableChangeListeners(PROP_POSITION);
+        return vcs.getVetoableChangeListeners();
     }
 
     @Override
     public PropertyChangeListener[] getPropertyChangeListeners() {
-        return pcs.getPropertyChangeListeners(PROP_POSITION);
+        return pcs.getPropertyChangeListeners();
     }
 
     @Override
     public String toString() {
         return this.type.getId() + ";" +
                horizontal + ";" + position.getX() + ";" + position.getY();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        StdVehicle that = (StdVehicle) obj;
+
+        return this.type.equals(that.type) &&
+               this.position.equals(that.position) &&
+               this.horizontal == that.horizontal;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = type.hashCode();
+        result = 31 * result + position.hashCode();
+        result = 31 * result + (horizontal ? 1 : 0);
+        return result;
     }
 
     // COMMANDES
@@ -104,44 +125,49 @@ public class StdVehicle implements Vehicle {
         pcs.firePropertyChange(PROP_POSITION, oldPos, newPos);
     }
 
-    /**
-     * Change la position du véhicule. Cette méthode est utilisée pour
-     * réinitialiser la position du véhicule à son état initial. Elle ne doit
-     * pas être utilisée pour déplacer le véhicule pendant le jeu, car elle ne
-     * vérifie pas les règles de déplacement.
-     *
-     * <pre>
-     * Préconditions :
-     *    newPos != null
-     * </pre>
-     *
-     * @param newPos La nouvelle position du véhicule.
-     */
-    void setPosition(Position newPos) {
-        Contract.checkCondition(newPos != null, "newPos == null");
-        Position oldPos = this.position;
-        position = newPos;
-        pcs.firePropertyChange(PROP_POSITION, oldPos, newPos);
+    @Override
+    public void setPlacement(Position position, boolean horizontal)
+            throws PropertyVetoException {
+        Contract.checkCondition(position != null, "position == null");
+
+        Placement oldPlacement = new Placement(this.position, this.horizontal);
+        Placement newPlacement = new Placement(position, horizontal);
+
+        vcs.fireVetoableChange(PROP_PLACEMENT, oldPlacement, newPlacement);
+        this.position = position;
+        this.horizontal = horizontal;
+        pcs.firePropertyChange(PROP_PLACEMENT, oldPlacement, newPlacement);
+        pcs.firePropertyChange(PROP_POSITION, oldPlacement.position(),
+                               position);
+    }
+
+
+    void setPosition(Position position) {
+        Contract.checkCondition(position != null, "position == null");
+        Position oldPosition = this.position;
+
+        this.position = position;
+        pcs.firePropertyChange(PROP_POSITION, oldPosition, position);
     }
 
     @Override
     public void addVetoableChangeListener(VetoableChangeListener listener) {
-        vcs.addVetoableChangeListener(PROP_POSITION, listener);
+        vcs.addVetoableChangeListener(listener);
     }
 
     @Override
     public void removeVetoableChangeListener(VetoableChangeListener listener) {
-        vcs.removeVetoableChangeListener(PROP_POSITION, listener);
+        vcs.removeVetoableChangeListener(listener);
     }
 
     @Override
     public void addPropertyChangeListener(PropertyChangeListener listener) {
-        pcs.addPropertyChangeListener(PROP_POSITION, listener);
+        pcs.addPropertyChangeListener(listener);
     }
 
     @Override
     public void removePropertyChangeListener(PropertyChangeListener listener) {
-        pcs.removePropertyChangeListener(PROP_POSITION, listener);
+        pcs.removePropertyChangeListener(listener);
     }
 
 }

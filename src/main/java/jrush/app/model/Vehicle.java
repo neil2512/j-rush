@@ -1,8 +1,8 @@
-package jrush.model;
+package jrush.app.model;
 
 import javafx.scene.paint.Color;
-import jrush.model.components.VehicleType;
-import jrush.util.Position;
+import jrush.app.model.components.VehicleType;
+import jrush.app.util.Position;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
@@ -10,40 +10,43 @@ import java.beans.VetoableChangeListener;
 
 /**
  * Un véhicule est un objet qui a une position, une taille, une orientation et
- * un identifiant. Il peut être déplacé dans une direction donnée, à condition
- * que le déplacement soit valide. Un véhicule peut également être écouté pour
- * les changements de position, ce qui permet au plateau de vérifier la validité
- * du déplacement avant qu'il ne soit effectué.
+ * un identifiant. Il peut être déplacé par glissement dans une direction
+ * donnée, à condition que le déplacement soit valide. Il peut être également
+ * déplacé par positionnement, à condition que la position soit également
+ * valide.
  *
  * <pre>
- * Invariant :
- *
  * Constructeur :
  *      Entrée :
- *          VehicleType type : Type du véhicule
- *          boolean horizontal : Orientation du véhicule
- *          Position position : Position du véhicule
+ *          – VehicleType type : Type du véhicule
+ *          – boolean horizontal : Orientation du véhicule
+ *          – Position position : Position du véhicule
  *      Préconditions :
- *          type != null
- *          position != null
+ *          – type != null
+ *          – position != null
  *      Postconditions :
- *          getId() == type.getId()
- *          getSize() == type.getSize()
- *          getColor() == type.getColor()
- *          isHorizontal() == horizontal
- *          getPosition() == position
+ *          – getId().equals(type.getId())
+ *          – getSize() == type.getSize()
+ *          – getColor().equals(type.getColor())
+ *          – isHorizontal() == horizontal
+ *          – getPosition().equals(position)
+ *          – getVetoableChangeListeners().length == 0
+ *          – getPropertyChangeListeners().length == 0
  *
  * Constructeur :
  *    Entrée :
- *          Vehicle other
+ *          – Vehicle other
  *    Préconditions :
- *          other != null
+ *          – other != null
  *    Postconditions :
- *          getId() == other.getId()
- *          getSize() == other.getSize()
- *          getColor() == other.getColor()
- *          isHorizontal() == other.isHorizontal()
- *          getPosition() == other.getPosition()
+ *          – getId().equals(other.getId())
+ *          – getSize() == other.getSize()
+ *          – getColor().equals(other.getColor())
+ *          – isHorizontal() == other.isHorizontal()
+ *          – getPosition().equals(other.getPosition())
+ *          – getPosition() != other.getPosition()
+ *          – getVetoableChangeListeners().length == 0
+ *          – getPropertyChangeListeners().length == 0
  * </pre>
  */
 public interface Vehicle {
@@ -52,6 +55,7 @@ public interface Vehicle {
 
     VehicleType WIN_CAR = VehicleType.RED_CAR;
     String PROP_POSITION = "position";
+    String PROP_PLACEMENT = "placement";
 
     // REQUÊTES
 
@@ -131,18 +135,42 @@ public interface Vehicle {
      *      delta != 0
      * </pre>
      *
-     * @param delta La distance de déplacement.
+     * @param delta La distance de déplacement
      *
      * @throws PropertyVetoException Si le déplacement est refusé par un
-     * écouteur de changements de position.
+     * écouteur de veto de changement de propriété.
      */
     void move(int delta) throws PropertyVetoException;
+
+    /**
+     * Redéfinit la position et l'orientation du véhicule. Celles-ci doivent
+     * être valides, c'est-à-dire que le véhicule ne doit pas sortir du plateau
+     * et ne doit pas chevaucher un autre véhicule. Si le placement est valide,
+     * la position et l'orientation du véhicule sont mises à jour et les
+     * écouteurs de changements de position et de placement sont notifiés. Si le
+     * placement n'est pas valide, une exception de type PropertyVetoException
+     * est levée pour indiquer que le placement a été refusé.
+     *
+     * <pre>
+     * Préconditions :
+     *      position != null
+     * </pre>
+     *
+     * @param position La nouvelle position du véhicule
+     * @param horizontal La nouvelle orientation du véhicule
+     *
+     * @throws PropertyVetoException Si le changement de position ou
+     * d'orientation est refusé par un écouteur de veto de changement de
+     * propriété.
+     */
+    void setPlacement(Position position, boolean horizontal)
+            throws PropertyVetoException;
 
     /**
      * Ajoute un écouteur de veto de changements de propriétés au véhicule.
      *
      * @param listener L'écouteur de veto de changements de propriétés à
-     * ajouter.
+     * ajouter
      */
     void addVetoableChangeListener(VetoableChangeListener listener);
 
@@ -150,21 +178,21 @@ public interface Vehicle {
      * Supprime un écouteur de veto de changements de propriétés du véhicule.
      *
      * @param listener L'écouteur de veto de changements de propriétés à
-     * supprimer.
+     * supprimer
      */
     void removeVetoableChangeListener(VetoableChangeListener listener);
 
     /**
      * Ajoute un écouteur de changements de propriété au véhicule.
      *
-     * @param listener L'écouteur de changements de propriété à ajouter.
+     * @param listener L'écouteur de changements de propriété à ajouter
      */
     void addPropertyChangeListener(PropertyChangeListener listener);
 
     /**
      * Supprime un écouteur de changements de propriété du véhicule.
      *
-     * @param listener L'écouteur de changements de propriété à supprimer.
+     * @param listener L'écouteur de changements de propriété à supprimer
      */
     void removePropertyChangeListener(PropertyChangeListener listener);
 

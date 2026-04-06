@@ -1,12 +1,12 @@
-package jrush.view;
+package jrush.app.view.board;
 
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
-import jrush.model.Board;
+import jrush.app.model.Board;
 
-import static jrush.model.Board.GRID_SIZE;
+import static jrush.app.model.Board.GRID_SIZE;
 
 /**
  * Classe qui représente graphiquement le plateau de jeu.
@@ -17,8 +17,6 @@ public class BoardGraphic extends Pane {
 
     public static final int CELL_SIZE = 80;
 
-    // ATTRIBUTS
-
     // CONSTRUCTEURS
 
     public BoardGraphic() {
@@ -26,8 +24,6 @@ public class BoardGraphic extends Pane {
         this.setMaxSize(CELL_SIZE * GRID_SIZE, CELL_SIZE * GRID_SIZE);
         refresh();
     }
-
-    // REQUÊTES
 
     // COMMANDES
 
@@ -56,7 +52,6 @@ public class BoardGraphic extends Pane {
                 this.getChildren().add(cell);
             }
         }
-
         drawExit();
     }
 
@@ -79,5 +74,4 @@ public class BoardGraphic extends Pane {
 
         this.getChildren().add(exitLine);
     }
-
 }

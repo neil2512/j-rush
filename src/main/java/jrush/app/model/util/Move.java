@@ -1,7 +1,7 @@
-package jrush.util;
+package jrush.app.model.util;
 
 
-import jrush.model.Vehicle;
+import jrush.app.model.Vehicle;
 import util.Contract;
 
 import java.beans.PropertyVetoException;
@@ -41,11 +41,10 @@ public class Move {
         return vehicle + ";" + delta;
     }
 
-
     // COMMANDES
 
     /**
-     * Effectue le déplacement du véhicule.
+     * Tente d'effectuer le déplacement du véhicule.
      *
      * @throws PropertyVetoException si le déplacement est invalide.
      */
@@ -54,7 +53,7 @@ public class Move {
     }
 
     /**
-     * Annule le déplacement du véhicule.
+     * Tente d'annuler le déplacement du véhicule.
      *
      * @throws PropertyVetoException si l'annulation du déplacement est
      * invalide.
@@ -62,5 +61,4 @@ public class Move {
     public void undo() throws PropertyVetoException {
         vehicle.move(-delta);
     }
-
 }

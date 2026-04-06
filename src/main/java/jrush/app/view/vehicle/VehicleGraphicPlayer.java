@@ -1,18 +1,16 @@
-package jrush.view;
+package jrush.app.view.vehicle;
 
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.shape.Rectangle;
-import jrush.model.GameEngine;
-import jrush.model.Vehicle;
-import jrush.util.Move;
+import jrush.app.model.GameEngine;
+import jrush.app.model.Vehicle;
+import jrush.app.model.util.Move;
+import jrush.app.view.board.BoardGraphic;
 import util.Contract;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-
 /**
- * Classe qui représente graphiquement un véhicule sur le plateau de jeu.
+ * Classe qui représente graphiquement un véhicule sur le plateau de jeu et
+ * qui permet de le déplacer en mode joueur.
  *
  * <pre>
  * Constructeur :
@@ -24,12 +22,11 @@ import java.beans.PropertyChangeListener;
  *          vehicle != null
  * </pre>
  */
-public class VehicleGraphic extends Rectangle {
+public class VehicleGraphicPlayer extends VehicleGraphic {
 
     // ATTRIBUTS
 
     private final GameEngine engine;
-    private final Vehicle vehicle;
 
     private double anchorX;
     private double anchorY;
@@ -37,61 +34,19 @@ public class VehicleGraphic extends Rectangle {
 
     // CONSTRUCTEURS
 
-    public VehicleGraphic(GameEngine engine, Vehicle vehicle) {
+    public VehicleGraphicPlayer(GameEngine engine, Vehicle vehicle) {
+        super(vehicle);
         Contract.checkCondition(engine != null, "engine == null");
-        Contract.checkCondition(vehicle != null, "vehicle == null");
         this.engine = engine;
-        this.vehicle = vehicle;
-        paint();
         connectControllers();
     }
 
-    // REQUÊTES
-
-    // COMMANDES
-
     // OUTILS
-
-    /**
-     * Configure l'apparence du rectangle en fonction des propriétés du véhicule
-     * et qui positionne le rectangle à la bonne place sur le plateau de jeu.
-     */
-    private void paint() {
-        if (vehicle.isHorizontal()) {
-            setWidth(vehicle.getSize() * BoardGraphic.CELL_SIZE - 4);
-            setHeight(BoardGraphic.CELL_SIZE - 4);
-        } else {
-            setWidth(BoardGraphic.CELL_SIZE - 4);
-            setHeight(vehicle.getSize() * BoardGraphic.CELL_SIZE - 4);
-        }
-
-        setFill(vehicle.getColor());
-
-        updatePosition();
-    }
-
-    /**
-     * Met à jour la position du rectangle en fonction de la position du
-     * véhicule sur le plateau de jeu.
-     */
-    private void updatePosition() {
-        setX(vehicle.getPosition().getX() * BoardGraphic.CELL_SIZE + 2);
-        setY(vehicle.getPosition().getY() * BoardGraphic.CELL_SIZE + 2);
-    }
 
     /**
      * Connecte les contrôleurs de l'élément graphique.
      */
     private void connectControllers() {
-        vehicle.addPropertyChangeListener(new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent event) {
-                if (event.getPropertyName().equals(Vehicle.PROP_POSITION)) {
-                    updatePosition();
-                }
-            }
-        });
-
         this.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {

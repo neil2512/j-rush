@@ -1,28 +1,41 @@
-package jrush.model;
+package jrush.app.model;
 
-import jrush.util.Move;
-import jrush.util.Position;
+import jrush.app.model.components.VehicleType;
+import jrush.app.model.util.Move;
+import jrush.app.util.Position;
 
 import java.beans.PropertyVetoException;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Un plateau est une grille de GRID_SIZE*GRID_SIZE cases. Elle contient une
+ * Un plateau est une grille de GRID_SIZE * GRID_SIZE cases. Elle contient une
  * liste de véhicules positionnés sur celle-ci.
+ *
  * <pre>
  * Constructeur :
  *      Postconditions :
- *          getVehicles().size() == 0
+ *          – getVehicles().size() == 0
+ *          – findVehicle(any) == null
+ *          – getInitialPositions().size() == 0
+ *          – getHistory().size() == 0
+ *          – canUndo() == canRedo() == false
+ *          – checkWinCondition() == false
  * Constructeur :
  *      Entrée :
- *              Board other
+ *          – Board other
  *      Préconditions :
- *              other != null
+ *          – other != null
  *      Postconditions :
- *              getVehicles() contient une copie des vehicules contenus dans
- *                  other.getVehicles()
- *
+ *          – getVehicles().size() == other.getVehicles().size()
+ *          – getInitialPositions().equals(other.getInitialPositions())
+ *          – getHistory().size() == 0
+ *          – canUndo() == canRedo() == false
+ *          – forall v dans getVehicles(),
+ *              v != other.findVehicle(v.getId())
+ *          – forall v dans getVehicles(),
+ *              v.getPosition().equals(
+ *                  other.findVehicle(v.getId()).getPosition())
  * </pre>
  */
 public interface Board {
@@ -42,6 +55,17 @@ public interface Board {
     List<Vehicle> getVehicles();
 
     /**
+     * Retourne le véhicule correspondant au type donné, ou null si aucun
+     * véhicule de ce type n'est présent sur le plateau.
+     *
+     * @param type Le type de véhicule à rechercher
+     *
+     * @return Le véhicule correspondant au type donné, ou null si aucun
+     * véhicule de ce type n'est présent sur le plateau.
+     */
+    Vehicle findVehicle(VehicleType type);
+
+    /**
      * Retourne une map associant les identifiants des véhicules à leurs
      * positions initiales sur le plateau.
      *
@@ -57,13 +81,6 @@ public interface Board {
      * dans l'ordre chronologique.
      */
     List<Move> getHistory();
-
-    /**
-     * Définit la liste des mouvements effectués sur le plateau.
-     *
-     * @param history La liste des mouvements à définir, dans l'ordre chronologique.
-     */
-    void setHistory(List<Move> history);
 
     /**
      * Retourne true si un mouvement peut être annulé, false sinon.
@@ -84,27 +101,35 @@ public interface Board {
      * les règles du jeu.
      *
      * @param vehicle Le véhicule à déplacer
-     * @param oldPos La position actuelle du véhicule
-     * @param newPos La position proposée pour le véhicule
+     * @param oldPosition La position actuelle du véhicule
+     * @param newPosition La position proposée pour le véhicule
      *
      * <pre>
      * Préconditions :
      *      vehicle != null
-     *      oldPos != null
-     *      newPos != null
+     *      oldPosition != null
+     *      newPosition != null
      * </pre>
      *
-     * @return true si le déplacement est valide, false sinon
+     * @return true si le déplacement est valide, false sinon.
      */
     boolean canVehicleMove(
-            Vehicle vehicle, Position oldPos,
-            Position newPos
-    );
+            Vehicle vehicle, Position oldPosition, Position newPosition);
+
+    /**
+     * Vérifie si les conditions de victoire sont remplies, c'est-à-dire si le
+     * véhicule rouge est positionné à la sortie.
+     *
+     * @return true si les conditions de victoire sont remplies, false sinon.
+     */
+    boolean checkWinCondition();
 
     // COMMANDES
 
     /**
-     * Ajoute un véhicule au plateau
+     * Tente d'ajouter un véhicule au plateau. Le véhicule doit être positionné
+     * à une position valide selon les règles du jeu, sinon une exception est
+     * levée.
      *
      * <pre>
      * Préconditions :
@@ -112,8 +137,31 @@ public interface Board {
      * </pre>
      *
      * @param vehicle le véhicule à ajouter
+     *
+     * @throws IllegalArgumentException Si la position du véhicule est
+     * interdite.
      */
     void addVehicle(Vehicle vehicle);
+
+    /**
+     * Supprime un véhicule du plateau.
+     *
+     * <pre>
+     * Préconditions :
+     *      vehicle != null
+     * </pre>
+     *
+     * @param vehicle le véhicule à supprimer
+     */
+    void removeVehicle(Vehicle vehicle);
+
+    /**
+     * Définit la liste des mouvements effectués sur le plateau.
+     *
+     * @param history La liste des mouvements à définir, dans l'ordre
+     * chronologique
+     */
+    void setHistory(List<Move> history);
 
     /**
      * Enregistre un mouvement dans l'historique du plateau.

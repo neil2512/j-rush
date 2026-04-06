@@ -1,15 +1,9 @@
-module jrush {
-  requires javafx.controls;
-  requires java.desktop;
-  requires javafx.fxml;
-  requires contract;
+module jrush.app {
+    requires contract;
+    requires javafx.controls;
+    requires javafx.fxml;
+    requires java.desktop;
 
-  exports jrush;
-  exports jrush.gui;
-  exports jrush.util;
-  exports jrush.model;
-
-  opens jrush.gui to javafx.fxml;
-  exports jrush.model.components;
-  exports jrush.model.logic;
+    opens jrush.app to javafx.fxml;
+    exports jrush.app;
 }
