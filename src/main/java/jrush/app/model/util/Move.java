@@ -41,6 +41,23 @@ public class Move {
         return vehicle + ";" + delta;
     }
 
+    public String display() {
+        if (vehicle.isHorizontal()) {
+            if (delta < 0) {
+                return "("+vehicle.getId() +", " + -delta + " LEFT) ";
+            } else {
+                return "("+vehicle.getId() +", " + delta + " RIGHT) ";
+            }
+        } else {
+            if (delta < 0) {
+                return "("+vehicle.getId() +", " + -delta + " UP) ";
+
+            } else {
+                return "("+vehicle.getId() +", " + delta + " DOWN) ";
+            }
+        }
+    }
+
     // COMMANDES
 
     /**

@@ -18,7 +18,7 @@ public enum VehicleType {
     DGR_CAR("DGRCAR", 2, Color.DARKGREEN),
     GRA_CAR("GRACAR", 2, Color.GRAY),
     YEL_CAR("YELCAR", 2, Color.YELLOW),
-    PGR_CAR("PGRCAR", 2, Color.PALEGREEN),
+    DKH_CAR("DKHCAR", 2, Color.DARKKHAKI),
     BRO_CAR("BROCAR", 2, Color.BROWN),
     TAN_CAR("TANCAR", 2, Color.TAN),
     YEL_TRK("YELTRK", 3, Color.YELLOW),

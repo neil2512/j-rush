@@ -10,6 +10,9 @@ import util.Contract;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 
+import static jrush.app.model.logic.LevelHandler.DEFAULT_MOVE;
+import static jrush.app.model.logic.LevelHandler.DEFAULT_TIME;
+
 public class StdBuildEngine extends AbstractEngine implements BuildEngine {
 
     // CONSTRUCTEURS
@@ -46,8 +49,16 @@ public class StdBuildEngine extends AbstractEngine implements BuildEngine {
     public void loadBoard(String filename) throws IOException {
         Contract.checkCondition(filename != null, "filename == null");
         Board old = this.board;
-        this.board = LevelHandler.loadBoard(filename);
+        LevelHandler.LoadResult result = LevelHandler.loadBoard(filename);
+        this.board = result.board();
         pcs.firePropertyChange(PROP_BOARD, old, this.board);
+    }
+
+    @Override
+    public void saveBoard(String filename) throws IOException {
+        Contract.checkCondition(filename != null, "filename == null");
+        Contract.checkCondition(isLoaded(), "!isLoaded()");
+        LevelHandler.saveBoard(board, DEFAULT_MOVE, DEFAULT_TIME, filename);
     }
 
     @Override

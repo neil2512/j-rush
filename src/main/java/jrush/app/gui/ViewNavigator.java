@@ -10,6 +10,7 @@ import jrush.app.model.logic.StdGameEngine;
 import jrush.app.view.BuildView;
 import jrush.app.view.GameView;
 import jrush.app.view.HomeView;
+import jrush.app.view.LevelsView;
 import util.Contract;
 
 /**
@@ -45,11 +46,14 @@ public class ViewNavigator {
         this.stage = stage;
         stage.setTitle("JRush");
 
-        Scene scene = new Scene(new Pane(), 800, 600);
+        Scene scene = new Scene(new Pane());
         stage.setScene(scene);
 
-        // CONTRÔLEUR
+        stage.setMinWidth(800);
+        stage.setMinHeight(600);
 
+        stage.setResizable(true);
+        stage.show();
     }
 
     // COMMANDES
@@ -60,7 +64,8 @@ public class ViewNavigator {
     public void showHome() {
         HomeView homeView = new HomeView(this, gameEngine);
         stage.getScene().setRoot(homeView);
-        stage.show();
+        stage.sizeToScene();
+        stage.centerOnScreen();
     }
 
     /**
@@ -76,7 +81,19 @@ public class ViewNavigator {
 
         GameView gameView = new GameView(this, gameEngine);
         stage.getScene().setRoot(gameView);
-        stage.show();
+        stage.sizeToScene();
+        stage.centerOnScreen();
+
+    }
+
+    /**
+     * Affiche la vue de construction de niveau de l'application.
+     */
+    public void showLevels() {
+        LevelsView levelView = new LevelsView(this, gameEngine);
+        stage.getScene().setRoot(levelView);
+        stage.sizeToScene();
+        stage.centerOnScreen();
     }
 
     /**
@@ -86,7 +103,8 @@ public class ViewNavigator {
         buildEngine.newBoard();
         BuildView buildView = new BuildView(this, buildEngine);
         stage.getScene().setRoot(buildView);
-        stage.show();
+        stage.sizeToScene();
+        stage.centerOnScreen();
     }
 
 }

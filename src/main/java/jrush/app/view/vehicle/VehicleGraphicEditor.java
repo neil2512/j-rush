@@ -46,6 +46,7 @@ public class VehicleGraphicEditor extends VehicleGraphic {
         this.engine = engine;
         this.boardGraphic = boardGraphic;
 
+        connectBaseControllers();
         connectControllers();
     }
 

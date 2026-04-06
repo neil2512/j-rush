@@ -8,6 +8,7 @@ import util.Contract;
 
 /**
  * Classe qui représente graphiquement un véhicule sur le plateau de jeu.
+ * Ne connecte pas ses contrôleurs.
  *
  * <pre>
  * Constructeur :
@@ -17,7 +18,7 @@ import util.Contract;
  *          vehicle != null
  * </pre>
  */
-public abstract class VehicleGraphic extends Rectangle {
+public class VehicleGraphic extends Rectangle {
 
     // ATTRIBUTS
 
@@ -29,7 +30,6 @@ public abstract class VehicleGraphic extends Rectangle {
         Contract.checkCondition(vehicle != null, "vehicle == null");
         this.vehicle = vehicle;
         paint();
-        connectBaseControllers();
     }
 
     // OUTILS
@@ -60,9 +60,9 @@ public abstract class VehicleGraphic extends Rectangle {
     }
 
     /**
-     * Connecte les contrôleurs de l'élément graphique.
+     * Connecte les contrôleurs de base de l'élément graphique.
      */
-    private void connectBaseControllers() {
+    protected void connectBaseControllers() {
         vehicle.addPropertyChangeListener(evt -> {
             if (evt.getPropertyName().equals(Vehicle.PROP_POSITION)) {
                 updatePosition();

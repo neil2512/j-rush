@@ -7,14 +7,13 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import jrush.app.gui.ViewNavigator;
 import jrush.app.model.BuildEngine;
 import jrush.app.model.Vehicle;
 import jrush.app.model.components.VehicleType;
+import jrush.app.util.GuiUtils;
 import jrush.app.view.board.BoardGraphic;
 import jrush.app.view.vehicle.VehicleGraphicEditor;
 import jrush.app.view.vehicle.VehiclePaletteItem;
@@ -34,11 +33,13 @@ public class BuildView extends BorderPane {
 
     private final BoardGraphic boardGraphic;
 
-    private final Button newButton = new Button("Nouveau");
-    private final Button loadButton = new Button("Charger");
-    private final Button saveButton = new Button("Sauvegarder");
-    private final Button resetButton = new Button("Reset");
-    private final Button leaveButton = new Button("Retour");
+    private final Button menuButton;
+    private final Button newButton;
+    private final Button loadButton;
+    private final Button saveButton;
+    private final Button resetButton;
+
+    private PropertyChangeListener buildListener;
 
     // CONSTRUCTEURS
 
@@ -55,8 +56,15 @@ public class BuildView extends BorderPane {
         this.navigator = navigator;
         this.boardGraphic = new BoardGraphic();
 
+        this.menuButton = new Button("MENU");
+        this.newButton = new Button("NOUVEAU");
+        this.loadButton = new Button("CHARGER");
+        this.saveButton = new Button("SAUVEGARDER");
+        this.resetButton = new Button("REINITIALISER");
+
         refreshBoard();
         updateControls();
+        setProperties();
         placeComponents();
 
         // CONTRÔLEUR
@@ -76,55 +84,88 @@ public class BuildView extends BorderPane {
     }
 
     /**
+     * Configure les propriétés de la vue.
+     */
+    private void setProperties() {
+        setPadding(new Insets(20));
+        setPrefSize(800, 800);
+
+        Button[] buttons = {newButton, loadButton, saveButton, resetButton};
+        for (Button b : buttons) {
+            b.setPrefWidth(120);
+        }
+    }
+
+    /**
      * Place les composants graphiques dans la vue.
      */
     private void placeComponents() {
-        Label title = new Label("ÉDITEUR DE NIVEAU");
+        HBox hb1 = new HBox();
         { // HAUT
-            BorderPane.setAlignment(title, Pos.CENTER);
-        } // -----
-        this.setTop(title);
+            hb1.setAlignment(Pos.CENTER_LEFT);
+            hb1.setPadding(new Insets(0, 0, 15, 0));
 
-        BorderPane bp = new BorderPane();
+            Label title = new Label("ÉDITEUR DE NIVEAU");
+            title.setStyle("-fx-font-weight: bold; -fx-font-size: 1.2em;");
+
+            Region leftSpacer = new Region();
+            HBox.setHgrow(leftSpacer, Priority.ALWAYS);
+
+            Region rightSpacer = new Region();
+            HBox.setHgrow(rightSpacer, Priority.ALWAYS);
+            rightSpacer.setMinWidth(120);
+
+            hb1.getChildren()
+               .addAll(menuButton, leftSpacer, title, rightSpacer);
+        } // -----
+        this.setTop(hb1);
+
+        BorderPane bp1 = new BorderPane();
         { // CENTRE
-            bp.setCenter(boardGraphic);
-            HBox topButtons =
-                    new HBox(10, newButton, loadButton, saveButton, resetButton,
-                             leaveButton);
-            topButtons.setPadding(new Insets(15));
-            topButtons.setAlignment(Pos.CENTER);
-            bp.setBottom(topButtons);
-        } // -----
-        this.setCenter(bp);
+            bp1.setCenter(boardGraphic);
 
-        ScrollPane sp = new ScrollPane();
-        { // DROITE
-            sp.setFitToWidth(true);
-            sp.setPrefWidth(280);
-
-            VBox vb = new VBox(5);
+            HBox hb2 = new HBox(10);
             { // -----
-                vb.setPadding(new Insets(10, 0, 10, 0));
-                vb.setAlignment(Pos.TOP_CENTER);
+                hb2.setAlignment(Pos.CENTER);
+                hb2.setPadding(new Insets(15));
+
+
+                hb2.getChildren()
+                   .addAll(newButton, loadButton, saveButton, resetButton);
+            } // -----
+
+            bp1.setBottom(hb2);
+        } // -----
+        this.setCenter(bp1);
+
+        ScrollPane sp1 = new ScrollPane();
+        { // DROITE
+            sp1.setFitToWidth(true);
+            sp1.setPrefWidth(280);
+
+            VBox vb2 = new VBox(5);
+            { // -----
+                vb2.setPadding(new Insets(10, 0, 10, 0));
+                vb2.setAlignment(Pos.TOP_CENTER);
 
                 for (VehicleType type : VehicleType.values()) {
                     VehiclePaletteItem item =
                             new VehiclePaletteItem(buildEngine, type,
                                                    boardGraphic);
-                    vb.getChildren().add(item);
+                    vb2.getChildren().add(item);
                 }
             } // -----
 
-            sp.setContent(vb);
+            sp1.setContent(vb2);
         } // -----
-        this.setRight(sp);
+        this.setRight(sp1);
     }
 
     /**
      * Connecte les contrôleurs aux composants graphiques de la vue.
      */
     private void connectControllers() {
-        buildEngine.addPropertyChangeListener(new PropertyChangeListener() {
+        this.buildListener = new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent event) {
                 if (event.getPropertyName().equals(BuildEngine.PROP_BOARD)) {
@@ -132,7 +173,9 @@ public class BuildView extends BorderPane {
                     updateControls();
                 }
             }
-        });
+        };
+
+        buildEngine.addPropertyChangeListener(buildListener);
 
         newButton.setOnAction(new EventHandler<>() {
             @Override
@@ -176,9 +219,10 @@ public class BuildView extends BorderPane {
             }
         });
 
-        leaveButton.setOnAction(new EventHandler<>() {
+        menuButton.setOnAction(new EventHandler<>() {
             @Override
             public void handle(ActionEvent event) {
+                buildEngine.removePropertyChangeListener(buildListener);
                 navigator.showHome();
             }
         });
@@ -195,12 +239,16 @@ public class BuildView extends BorderPane {
         }
     }
 
-    private File showFileChooser(boolean load) {
-        FileChooser chooser = new FileChooser();
-        chooser.getExtensionFilters()
-               .add(new FileChooser.ExtensionFilter("Niveaux Rush Hour (*.txt)",
-                                                    "*.txt"));
-        return load ? chooser.showOpenDialog(this.getScene().getWindow())
-                    : chooser.showSaveDialog(this.getScene().getWindow());
+    /**
+     * Affiche une boîte de dialogue de sélection de fichier pour charger ou
+     * sauvegarder un niveau, selon la valeur de isLoad.
+     *
+     * @param isLoad true pour charger un niveau, false pour en sauvegarder un.
+     *
+     * @return Le fichier sélectionné par l'utilisateur, ou null si
+     * l'utilisateur a annulé la sélection.
+     */
+    private File showFileChooser(boolean isLoad) {
+        return GuiUtils.showFileChooser(this.getScene().getWindow(), isLoad);
     }
 }

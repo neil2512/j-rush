@@ -38,6 +38,8 @@ public class VehicleGraphicPlayer extends VehicleGraphic {
         super(vehicle);
         Contract.checkCondition(engine != null, "engine == null");
         this.engine = engine;
+
+        connectBaseControllers();
         connectControllers();
     }
 

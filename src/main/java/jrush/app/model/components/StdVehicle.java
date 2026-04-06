@@ -7,6 +7,8 @@ import jrush.app.util.Position;
 import util.Contract;
 
 import java.beans.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class StdVehicle implements Vehicle {
 
@@ -73,6 +75,54 @@ public class StdVehicle implements Vehicle {
     }
 
     @Override
+    public Position getTail() {
+        Position head = getPosition();
+        int offset = getSize() - 1;
+
+        if (isHorizontal()) {
+            return new Position(head.getX() + offset, head.getY());
+        } else {
+            return new Position(head.getX(), head.getY() + offset);
+        }
+    }
+
+    @Override
+    public List<Position> getOccupiedPositions() {
+        List<Position> wholeCar = new ArrayList<>();
+        Position head = getPosition();
+        int size = getSize();
+
+        for (int i = 0; i < size; i++) {
+            if (isHorizontal()) {
+                wholeCar.add(new Position(head.getX() + i, head.getY()));
+            } else {
+                wholeCar.add(new Position(head.getX(), head.getY() + i));
+            }
+        }
+        return wholeCar;
+    }
+
+    @Override
+    public List<Position> getOccupiedPositionsAt(
+            Position position,
+            boolean horizontal
+    ) {
+        List<Position> positions = new ArrayList<>();
+        int size = getSize();
+
+        for (int i = 0; i < size; i++) {
+            if (horizontal) {
+                positions.add(
+                        new Position(position.getX() + i, position.getY()));
+            } else {
+                positions.add(
+                        new Position(position.getX(), position.getY() + i));
+            }
+        }
+        return positions;
+    }
+
+    @Override
     public VetoableChangeListener[] getVetoableChangeListeners() {
         return vcs.getVetoableChangeListeners();
     }
@@ -84,8 +134,8 @@ public class StdVehicle implements Vehicle {
 
     @Override
     public String toString() {
-        return this.type.getId() + ";" +
-               horizontal + ";" + position.getX() + ";" + position.getY();
+        return this.type.getId() + ";" + (horizontal ? "1" : "0") + ";" +
+               position.getX() + ";" + position.getY();
     }
 
     @Override

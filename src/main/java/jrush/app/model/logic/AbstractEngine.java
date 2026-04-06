@@ -52,12 +52,6 @@ public abstract class AbstractEngine {
 
     // COMMANDES
 
-    public void saveBoard(String filename) throws IOException {
-        Contract.checkCondition(filename != null, "filename == null");
-        Contract.checkCondition(isLoaded(), "!isLoaded()");
-        LevelHandler.saveBoard(board, filename);
-    }
-
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         pcs.addPropertyChangeListener(listener);
     }

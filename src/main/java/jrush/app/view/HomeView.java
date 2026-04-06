@@ -2,14 +2,14 @@ package jrush.app.view;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
-import javafx.stage.Window;
 import jrush.app.gui.ViewNavigator;
 import jrush.app.model.GameEngine;
+import jrush.app.util.GuiUtils;
 import util.Contract;
 
 import java.io.File;
@@ -28,10 +28,6 @@ import java.io.File;
  * </pre>
  */
 public class HomeView extends VBox {
-
-    // CONSTANTES
-
-    private static final double SPACING = 20;
 
     // ATTRIBUTS
 
@@ -73,7 +69,15 @@ public class HomeView extends VBox {
      */
     private void setProperties() {
         setAlignment(Pos.CENTER);
-        setSpacing(SPACING);
+        setSpacing(25);
+        setPadding(new Insets(40));
+        setPrefSize(500, 600);
+
+        Button[] buttons =
+                {playButton, generateButton, importButton, buildButton};
+        for (Button b : buttons) {
+            b.setPrefWidth(200);
+        }
     }
 
     /**
@@ -92,22 +96,16 @@ public class HomeView extends VBox {
         playButton.setOnAction(new EventHandler<>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                navigator.showGame();
+                navigator.showLevels();
             }
         });
 
         importButton.setOnAction(new EventHandler<>() {
             @Override
             public void handle(ActionEvent event) {
-                FileChooser fileChooser = new FileChooser();
-                fileChooser.setTitle("Charger un niveau");
-                fileChooser.getExtensionFilters().add(
-                        new FileChooser.ExtensionFilter("Fichiers Texte",
-                                                        "*.txt")
-                );
-
-                Window stage = importButton.getScene().getWindow();
-                File selectedFile = fileChooser.showOpenDialog(stage);
+                File selectedFile =
+                        GuiUtils.showFileChooser(
+                                importButton.getScene().getWindow(), true);
                 if (selectedFile != null) {
                     try {
                         gameEngine.loadBoard(selectedFile.getAbsolutePath());
