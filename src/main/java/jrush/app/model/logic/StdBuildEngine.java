@@ -4,11 +4,14 @@ import jrush.app.model.Board;
 import jrush.app.model.BuildEngine;
 import jrush.app.model.Vehicle;
 import jrush.app.model.components.StdBoard;
+import jrush.app.model.logic.solver.AStarSolver;
+import jrush.app.model.util.Move;
 import jrush.app.util.Position;
-import util.Contract;
+import jrush.app.util.Contract;
 
 import java.beans.PropertyVetoException;
 import java.io.IOException;
+import java.util.List;
 
 import static jrush.app.model.logic.LevelHandler.DEFAULT_MOVE;
 import static jrush.app.model.logic.LevelHandler.DEFAULT_TIME;
@@ -34,6 +37,23 @@ public class StdBuildEngine extends AbstractEngine implements BuildEngine {
 
         return winCar.isHorizontal() &&
                winCar.getPosition().getY() == Board.EXIT_POSITION.getY();
+    }
+
+    @Override
+    public boolean isSolvable() {
+        if (!isValid()) {
+            return false;
+        }
+        try {
+            StdGameEngine tempEngine = new StdGameEngine();
+
+            AStarSolver solver = new AStarSolver(this.board);
+            List<Move> solution = solver.solve();
+
+            return solution != null && !solution.isEmpty();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     // COMMANDES

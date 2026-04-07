@@ -3,10 +3,10 @@ package jrush.app.util;
 import javafx.scene.control.Alert;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
-import jrush.app.model.logic.LevelHandler;
 
 import java.io.File;
 
+import static jrush.app.gui.ViewNavigator.CSS_PATH;
 import static jrush.app.model.logic.LevelHandler.EXTENSION;
 
 /**
@@ -86,6 +86,15 @@ public final class GuiUtils {
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(content);
+
+        try {
+            String css = GuiUtils.class.getResource(CSS_PATH).toExternalForm();
+            alert.getDialogPane().getStylesheets().add(css);
+            alert.getDialogPane().getStyleClass().add("root");
+        } catch (Exception e) {
+            System.err.println("CSS not found : " + e.getMessage());
+        }
+
         alert.showAndWait();
     }
 }

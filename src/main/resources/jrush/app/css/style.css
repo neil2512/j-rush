@@ -1,0 +1,214 @@
+/* POLICES ================================================================== */
+
+@font-face {
+    font-family: 'Inter';
+    src: url('../fonts/InterVariable.ttf');
+}
+
+/* PALETTE DE COULEURS ====================================================== */
+
+.root {
+    /* Fond et Textes */
+    -bg-color: #F8F7ED;
+    -text-main: #3B322C;
+    -text-muted: #8A7F75;
+
+    /* Couleurs d'interaction */
+    -primary-color: #A1C067;
+    -primary-hover: #8DAA56;
+
+    -secondary-color: #EFE7DC;
+    -secondary-hover: #E2D6C7;
+    -secondary-text: #5C5147;
+
+    -accent-color: #E38B6D;
+    -accent-hover: #CF7558;
+
+    /* Ombres standardisées */
+    -shadow-soft: dropshadow(three-pass-box, rgba(15, 23, 42, 0.25), 18, 0, 0, 6);
+    -shadow-button: dropshadow(three-pass-box, rgba(59, 130, 246, 0.60), 12, 0, 0, 4);
+
+    /* Application au fond général */
+    -fx-background-color: -bg-color;
+    -fx-font-family: "Inter", sans-serif;
+}
+
+/* TYPOGRAPHIE ============================================================== */
+
+.label {
+    -fx-text-fill: -text-main;
+    -fx-font-size: 14px;
+}
+
+.title-main {
+    -fx-font-size: 42px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -text-main;
+    -fx-effect: dropshadow(two-pass-box, rgba(0, 0, 0, 0.25), 4, 0, 0, 3);
+}
+
+.title-section {
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -text-main;
+}
+
+.text-hud {
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -text-main;
+}
+
+.text-muted {
+    -fx-text-fill: -text-muted;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+/* BOUTONS ================================================================== */
+
+.button {
+    -fx-background-color: -primary-color;
+    -fx-text-fill: white;
+    -fx-background-radius: 6;
+    -fx-padding: 10 20;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-effect: -shadow-button;
+}
+
+.button:hover {
+    -fx-background-color: -primary-hover;
+}
+
+.button:pressed {
+    -fx-translate-y: 2px;
+    -fx-effect: none;
+}
+
+.button-secondary {
+    -fx-background-color: -secondary-color;
+    -fx-text-fill: -secondary-text;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.25), 8, 0, 0, 3);
+}
+
+.button-secondary:hover {
+    -fx-background-color: -secondary-hover;
+}
+
+.button-secondary:pressed {
+    -fx-translate-y: 2px;
+    -fx-effect: none;
+}
+
+.button-accent {
+    -fx-background-color: -accent-color;
+    -fx-effect: dropshadow(three-pass-box, rgba(239, 68, 68, 0.60), 12, 0, 0, 4);
+}
+
+.button-accent:hover {
+    -fx-background-color: -accent-hover;
+}
+
+/* MISE EN PAGE ============================================================= */
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-padding: 20;
+    -fx-effect: -shadow-soft;
+}
+
+/* PLATEAU ================================================================== */
+
+.board-frame {
+    -fx-fill: transparent;
+    -fx-stroke: -text-main;
+    -fx-stroke-width: 3;
+    -fx-stroke-type: outside;
+}
+
+.board-grid-line {
+    -fx-stroke: -secondary-color;
+    -fx-stroke-width: 1;
+}
+
+.board-exit {
+    -fx-fill: -text-main;
+}
+
+/* PLATEAU ================================================================== */
+
+.vehicle-graphic {
+    -fx-stroke: rgba(0, 0, 0, 0.2);
+    -fx-stroke-width: 1.5;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.35), 8, 0, 0, 4);
+}
+
+/* DIALOGUE ================================================================= */
+
+.dialog-pane {
+    -fx-background-color: -secondary-color;
+    -fx-padding: 15;
+}
+
+.dialog-pane > *.header-panel *.header-panel-title {
+    -fx-text-fill: -text-main;
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+}
+
+.dialog-pane > *.content.label {
+    -fx-text-fill: -text-main;
+    -fx-font-size: 14px;
+    -fx-padding: 20;
+}
+
+.dialog-pane > *.button-bar {
+    -fx-padding: 15;
+}
+
+.dialog-pane .button {
+    -fx-background-color: -primary-color;
+    -fx-text-fill: white;
+    -fx-background-radius: 6;
+    -fx-padding: 8 20;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+    -fx-effect: -shadow-button;
+}
+
+.dialog-pane .button:hover {
+    -fx-background-color: -primary-hover;
+}
+
+.dialog-pane .button:pressed {
+    -fx-translate-y: 2px;
+    -fx-effect: none;
+}
+
+/* INDICATEUR =============================================================== */
+
+.status-label {
+    -fx-padding: 5 15;
+    -fx-background-radius: 20;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-text-fill: white;
+}
+
+.status-solvable {
+    -fx-background-color: #27ae60;
+    -fx-effect: dropshadow(three-pass-box, rgba(39, 174, 96, 0.4), 10, 0, 0, 0);
+}
+
+.status-unsolvable {
+    -fx-background-color: #e74c3c;
+    -fx-effect: dropshadow(three-pass-box, rgba(231, 76, 60, 0.4), 10, 0, 0, 0);
+}
+
+.status-waiting {
+    -fx-background-color: -secondary-color;
+    -fx-text-fill: -text-main;
+}

@@ -1,7 +1,6 @@
 package jrush.app.model.components;
 
 import javafx.scene.paint.Color;
-import util.Contract;
 
 /**
  * Un type de véhicule est défini par un identifiant, une taille et une couleur.
@@ -9,22 +8,22 @@ import util.Contract;
  * (taille 3).
  */
 public enum VehicleType {
-    RED_CAR("REDCAR", 2, Color.RED),
-    LIM_CAR("LIMCAR", 2, Color.LIME),
-    ORA_CAR("ORACAR", 2, Color.ORANGE),
-    LBL_CAR("LBLCAR", 2, Color.LIGHTBLUE),
-    PIN_CAR("PINCAR", 2, Color.PINK),
-    PUR_CAR("PURCAR", 2, Color.PURPLE),
-    DGR_CAR("DGRCAR", 2, Color.DARKGREEN),
-    GRA_CAR("GRACAR", 2, Color.GRAY),
-    YEL_CAR("YELCAR", 2, Color.YELLOW),
-    DKH_CAR("DKHCAR", 2, Color.DARKKHAKI),
-    BRO_CAR("BROCAR", 2, Color.BROWN),
-    TAN_CAR("TANCAR", 2, Color.TAN),
-    YEL_TRK("YELTRK", 3, Color.YELLOW),
-    PUR_TRK("PURTRK", 3, Color.PURPLE),
-    TEA_TRK("TEATRK", 3, Color.TEAL),
-    DBL_TRK("DBLTRK", 3, Color.DARKBLUE);
+    RED_CAR("REDCAR", 2, Color.web("#D96C6C")),
+    LIM_CAR("LIMCAR", 2, Color.web("#A8C66C")),
+    ORA_CAR("ORACAR", 2, Color.web("#E0A060")),
+    LBL_CAR("LBLCAR", 2, Color.web("#9FBFD1")),
+    PIN_CAR("PINCAR", 2, Color.web("#E3A6B2")),
+    PUR_CAR("PURCAR", 2, Color.web("#A287C2")),
+    DGR_CAR("DGRCAR", 2, Color.web("#5E7F5E")),
+    GRA_CAR("GRACAR", 2, Color.web("#A49B93")),
+    YEL_CAR("YELCAR", 2, Color.web("#E6CF7A")),
+    DKH_CAR("DKHCAR", 2, Color.web("#C6DEB4")),
+    BRO_CAR("BROCAR", 2, Color.web("#9C6B4A")),
+    TAN_CAR("TANCAR", 2, Color.web("#D8C3A5")),
+    YEL_TRK("YELTRK", 3, Color.web("#D4B95F")),
+    PUR_TRK("PURTRK", 3, Color.web("#8B6AB0")),
+    TEA_TRK("TEATRK", 3, Color.web("#5FA8A8")),
+    DBL_TRK("DBLTRK", 3, Color.web("#4F6F94"));
 
     // ATTRIBUTS
 

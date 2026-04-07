@@ -60,6 +60,19 @@ public interface BuildEngine {
     boolean isValid();
 
     /**
+     * Retourne true si le plateau de jeu actuellement chargé est solvable,
+     * c'est-à-dire s'il existe une séquence de mouvements qui mène à la
+     * victoire, false sinon. Un plateau de jeu est considéré comme solvable
+     * s'il est valide et s'il existe une séquence de mouvements qui mène à la
+     * victoire, autrement dit que le véhicule gagnant peut être déplacé jusqu'à
+     * la sortie du plateau en respectant les règles du jeu.
+     *
+     * @return true si le plateau de jeu actuellement chargé est solvable, false
+     * sinon.
+     */
+    boolean isSolvable();
+
+    /**
      * Retourne un tableau des écouteurs de changements de propriété
      * actuellement enregistrés auprès du moteur de jeu.
      *
@@ -136,8 +149,8 @@ public interface BuildEngine {
     void saveBoard(String filename) throws IOException;
 
     /**
-     * Réinitialise le plateau de jeu à son état initial tel qu'il a été
-     * chargé. Les écouteurs de changements de propriété sont notifiés.
+     * Réinitialise le plateau de jeu à son état initial tel qu'il a été chargé.
+     * Les écouteurs de changements de propriété sont notifiés.
      *
      * <pre>
      * Préconditions :

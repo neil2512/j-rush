@@ -9,7 +9,7 @@ import javafx.util.Duration;
 import jrush.app.model.GameEngine;
 import jrush.app.model.Vehicle;
 import jrush.app.model.util.Move;
-import util.Contract;
+import jrush.app.util.Contract;
 
 import java.beans.PropertyVetoException;
 import java.io.IOException;

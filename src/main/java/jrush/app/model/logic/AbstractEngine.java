@@ -1,11 +1,9 @@
 package jrush.app.model.logic;
 
 import jrush.app.model.Board;
-import util.Contract;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.io.IOException;
 
 /**
  * Classe abstraite qui construit la base d'un moteur utilitaire, responsable de

@@ -116,7 +116,7 @@ public interface Vehicle {
      *
      * @return Une liste des positions occupées par le véhicule sur le plateau.
      */
-    public List<Position> getOccupiedPositions();
+    List<Position> getOccupiedPositions();
 
     /**
      * Retourne une liste des positions occupées par le véhicule si celui-ci
@@ -128,7 +128,7 @@ public interface Vehicle {
      * @return Une liste des positions occupées par le véhicule si celui-ci
      * était placé à une position donnée avec une orientation donnée.
      */
-    public List<Position> getOccupiedPositionsAt(
+    List<Position> getOccupiedPositionsAt(
             Position position,
             boolean horizontal
     );

@@ -70,7 +70,7 @@ public interface GameEngine {
      * @return Le temps écoulé en secondes depuis le chargement du plateau de
      * jeu.
      */
-    public int getTime();
+    int getTime();
 
     /**
      * Retourne un booléen décrivant l'état de victoire de la partie

@@ -7,7 +7,7 @@ import jrush.app.model.BuildEngine;
 import jrush.app.model.Vehicle;
 import jrush.app.model.components.VehicleType;
 import jrush.app.view.board.BoardGraphic;
-import util.Contract;
+import jrush.app.util.Contract;
 
 import java.beans.PropertyVetoException;
 

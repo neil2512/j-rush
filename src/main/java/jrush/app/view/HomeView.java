@@ -7,12 +7,13 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.stage.Window;
 import jrush.app.gui.ViewNavigator;
 import jrush.app.model.GameEngine;
 import jrush.app.util.GuiUtils;
-import util.Contract;
-
+import jrush.app.util.Contract;
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Vue d'accueil de l'application.
@@ -50,6 +51,7 @@ public class HomeView extends VBox {
 
         // VUE
         this.navigator = navigator;
+        this.navigator.updateTitle("Accueil");
         this.playButton = new Button("NIVEAUX CLASSIQUES");
         this.generateButton = new Button("DEFI ALÉATOIRE");
         this.importButton = new Button("CHARGER UN NIVEAU");
@@ -71,13 +73,19 @@ public class HomeView extends VBox {
         setAlignment(Pos.CENTER);
         setSpacing(25);
         setPadding(new Insets(40));
-        setPrefSize(500, 600);
+
+        getStyleClass().add("root");
 
         Button[] buttons =
                 {playButton, generateButton, importButton, buildButton};
         for (Button b : buttons) {
-            b.setPrefWidth(200);
+            b.setPrefWidth(220);
+            b.setPrefHeight(40);
+            b.getStyleClass().add("button");
         }
+
+        buildButton.getStyleClass().remove("button");
+        buildButton.getStyleClass().add("button-secondary");
     }
 
     /**
@@ -85,6 +93,8 @@ public class HomeView extends VBox {
      */
     private void placeComponents() {
         Label title = new Label("JRUSH");
+        title.getStyleClass().add("title-main");
+        VBox.setMargin(title, new Insets(0, 0, 80, 0));
         getChildren().addAll(title, playButton, generateButton, importButton,
                              buildButton);
     }
@@ -100,19 +110,30 @@ public class HomeView extends VBox {
             }
         });
 
+
+        generateButton.setOnAction(new EventHandler<>() {
+            @Override
+            public void handle(ActionEvent event) {
+                GuiUtils.showInfo("Information", "Génération indisponible",
+                                  "La génération est actuellement " +
+                                  "indisponible. Ajoutée à la prochaine mise " +
+                                  "à jour.");
+            }
+        });
+
         importButton.setOnAction(new EventHandler<>() {
             @Override
             public void handle(ActionEvent event) {
-                File selectedFile =
-                        GuiUtils.showFileChooser(
-                                importButton.getScene().getWindow(), true);
+                Window window = importButton.getScene().getWindow();
+                File selectedFile = GuiUtils.showFileChooser(window, true);
                 if (selectedFile != null) {
                     try {
                         gameEngine.loadBoard(selectedFile.getAbsolutePath());
                         navigator.showGame();
-                    } catch (java.io.IOException e) {
-                        System.err.println("Erreur lors du chargement : " +
-                                           e.getMessage());
+                    } catch (IOException e) {
+                        GuiUtils.showError("Erreur de lecture", e.getMessage());
+                    } catch (Exception e) {
+                        GuiUtils.showError("Fichier invalide", e.getMessage());
                     }
                 }
             }

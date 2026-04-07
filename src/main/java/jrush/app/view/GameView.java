@@ -8,22 +8,28 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
-import javafx.stage.FileChooser;
 import jrush.app.gui.ViewNavigator;
 import jrush.app.model.Board;
 import jrush.app.model.GameEngine;
 import jrush.app.model.Vehicle;
+import jrush.app.model.components.VehicleType;
+//import jrush.app.model.logic.solver.AStarSolver;
+import jrush.app.model.logic.solver.AStarSolver;
+import jrush.app.model.logic.solver.Solver;
+import jrush.app.model.util.Move;
 import jrush.app.util.GuiUtils;
 import jrush.app.view.board.BoardGraphic;
 import jrush.app.view.vehicle.VehicleGraphic;
 import jrush.app.view.vehicle.VehicleGraphicPlayer;
-import util.Contract;
+import jrush.app.util.Contract;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -48,9 +54,9 @@ public class GameView extends BorderPane {
 
     // ATTRIBUTS
 
-    private final ViewNavigator navigator;
     private final GameEngine gameEngine;
 
+    private final ViewNavigator navigator;
     private final BoardGraphic boardGraphic;
 
     private final Label moveLabel;
@@ -78,15 +84,16 @@ public class GameView extends BorderPane {
 
         // VUE
         this.navigator = navigator;
+        this.navigator.updateTitle("En jeu");
+
         this.boardGraphic = new BoardGraphic();
 
         this.moveLabel = new Label();
         this.moveLabel.setText("Coups : " + gameEngine.getMoveCount());
+
         this.timerLabel = new Label();
         int secondsElapsed = gameEngine.getTime();
-        int minutes = secondsElapsed / 60;
-        int seconds = secondsElapsed % 60;
-        this.timerLabel.setText(String.format("%02d:%02d", minutes, seconds));
+        this.timerLabel.setText(formatTime(secondsElapsed));
 
         this.menuButton = new Button("MENU");
         this.saveButton = new Button("SAUVEGARDER");
@@ -95,6 +102,7 @@ public class GameView extends BorderPane {
         this.resetButton = new Button("RECOMMENCER");
         this.solveButton = new Button("RESOUDRE");
 
+        setProperties();
         placeComponents();
         updateControls();
 
@@ -104,6 +112,32 @@ public class GameView extends BorderPane {
     }
 
     // OUTILS
+
+    /**
+     * Applique les styles CSS aux composants graphiques de la vue pour assurer
+     * une cohérence visuelle avec le reste de l'application.
+     */
+    private void setProperties() {
+        getStyleClass().add("root");
+
+        menuButton.getStyleClass().add("button-secondary");
+        saveButton.getStyleClass().add("button-secondary");
+
+        undoButton.getStyleClass().add("button");
+        redoButton.getStyleClass().add("button");
+
+        resetButton.getStyleClass().add("button-accent");
+        solveButton.getStyleClass().add("button-secondary");
+
+        moveLabel.getStyleClass().add("text-hud");
+        timerLabel.getStyleClass().add("text-hud");
+
+        Button[] bottomButtons =
+                {undoButton, redoButton, resetButton, solveButton};
+        for (Button b : bottomButtons) {
+            b.setMinWidth(Region.USE_PREF_SIZE);
+        }
+    }
 
     /**
      * Met à jour l'état des boutons de contrôle en fonction de l'état du moteur
@@ -133,7 +167,7 @@ public class GameView extends BorderPane {
         } // -----
         this.setTop(hb1);
 
-        VBox vb1 = new VBox(20);
+        VBox vb1 = new VBox(15);
         { // CENTRE
             vb1.setAlignment(Pos.CENTER);
 
@@ -146,22 +180,33 @@ public class GameView extends BorderPane {
             } // -----
             vb1.getChildren().add(hb2);
 
-            { // -----
-                for (Vehicle v : gameEngine.getBoard().getVehicles()) {
-                    VehicleGraphic vg = new VehicleGraphicPlayer(gameEngine, v);
-                    boardGraphic.getChildren().add(vg);
-                }
-            } // -----
-            vb1.getChildren().add(boardGraphic);
+            StackPane sp2 = new StackPane();
+            {
+                sp2.getStyleClass().add("card");
+                sp2.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+                sp2.setPadding(new Insets(10));
+
+                { // -----
+                    for (Vehicle v : gameEngine.getBoard().getVehicles()) {
+                        VehicleGraphic vg =
+                                new VehicleGraphicPlayer(gameEngine, v);
+                        boardGraphic.getChildren().add(vg);
+                    }
+                } // -----
+                sp2.getChildren().add(boardGraphic);
+            }
+            vb1.getChildren().add(sp2);
 
             hb2 = new HBox();
             { // -----
                 hb2.setMaxWidth(BoardGraphic.CELL_SIZE * Board.GRID_SIZE);
                 hb2.setAlignment(Pos.CENTER);
 
-                VBox vb3 = new VBox(8);
+                VBox vb3 = new VBox(10);
                 { // -----
                     vb3.setAlignment(Pos.CENTER);
+                    resetButton.setPrefWidth(140);
+                    solveButton.setPrefWidth(140);
                     vb3.getChildren().addAll(resetButton, solveButton);
                 } // -----
 
@@ -169,10 +214,15 @@ public class GameView extends BorderPane {
                 Region rightSpacer = new Region();
                 HBox.setHgrow(leftSpacer, Priority.ALWAYS);
                 HBox.setHgrow(rightSpacer, Priority.ALWAYS);
+
+                undoButton.setPrefWidth(110);
+                redoButton.setPrefWidth(110);
+
                 hb2.getChildren()
                    .addAll(undoButton, leftSpacer, vb3, rightSpacer,
                            redoButton);
             } // -----
+            VBox.setMargin(hb2, new Insets(0, 0, 15, 0));
             vb1.getChildren().add(hb2);
         } // -----
         this.setCenter(vb1);
@@ -203,11 +253,7 @@ public class GameView extends BorderPane {
                 }
                 if (evt.getPropertyName().equals(GameEngine.PROP_TIMER)) {
                     int secondsElapsed = (Integer) evt.getNewValue();
-                    int minutes = secondsElapsed / 60;
-                    int seconds = secondsElapsed % 60;
-
-                    String time = String.format("%02d:%02d", minutes, seconds);
-                    timerLabel.setText(time);
+                    timerLabel.setText(formatTime(secondsElapsed));
                 }
             }
         };
@@ -229,11 +275,11 @@ public class GameView extends BorderPane {
                 if (file != null) {
                     try {
                         gameEngine.saveBoard(file.getAbsolutePath());
-                    } catch (IOException ex) {
+                    } catch (IOException e) {
                         GuiUtils.showError(
                                 "Erreur de sauvegarde",
                                 "Impossible de sauvegarder le niveau : " +
-                                ex.getMessage());
+                                e.getMessage());
                     }
                 }
             }
@@ -245,7 +291,10 @@ public class GameView extends BorderPane {
                 try {
                     gameEngine.undoBoardMove();
                 } catch (PropertyVetoException e) {
-                    throw new RuntimeException(e);
+                    GuiUtils.showError(
+                            "Erreur d'action",
+                            "Impossible d'annuler le mouvement : " +
+                            e.getMessage());
                 }
             }
         });
@@ -256,7 +305,10 @@ public class GameView extends BorderPane {
                 try {
                     gameEngine.redoBoardMove();
                 } catch (PropertyVetoException e) {
-                    throw new RuntimeException(e);
+                    GuiUtils.showError(
+                            "Erreur d'action",
+                            "Impossible de rétablir le mouvement : " +
+                            e.getMessage());
                 }
             }
         });
@@ -267,6 +319,65 @@ public class GameView extends BorderPane {
                 gameEngine.resetBoard();
             }
         });
+
+        solveButton.setOnAction(new EventHandler<>() {
+            @Override
+            public void handle(ActionEvent event) {
+                gameEngine.resetBoard();
+
+                Solver solver = new AStarSolver(gameEngine.getBoard());
+
+                try {
+                    List<Move> rawSolution = solver.solve();
+
+                    if (rawSolution == null || rawSolution.isEmpty()) {
+                        throw new Exception("Aucune solution trouvée.");
+                    }
+
+                    List<Move> realHistory = new ArrayList<>();
+                    Board realBoard = gameEngine.getBoard();
+
+                    for (Move m : rawSolution) {
+                        Vehicle realVehicle = realBoard.findVehicle(
+                                VehicleType.fromId(m.getVehicle().getId()));
+                        realHistory.add(new Move(realVehicle, m.getDelta()));
+                    }
+
+                    realBoard.setHistory(realHistory);
+                    realBoard.setHistoryCursor(-1);
+
+                    updateControls();
+
+                    GuiUtils.showInfo("Solution prête",
+                                      "Le puzzle a été réinitialisé à " +
+                                      "son état d'origine.",
+                                      "Utilisez le bouton 'Rétablir' pour " +
+                                      "parcourir les " +
+                                      realHistory.size() +
+                                      " coups de la solution.");
+
+                } catch (Exception e) {
+                    GuiUtils.showError(
+                            "Erreur de résolution",
+                            "Impossible de résoudre le niveau : " +
+                            e.getMessage());
+                }
+            }
+        });
+    }
+
+    /**
+     * Formate les secondes en affichage MM:SS
+     *
+     * @param totalSeconds Le nombre total de secondes à formater.
+     *
+     * @return Une chaîne de caractères représentant le temps formaté en minutes
+     * et secondes.
+     */
+    private String formatTime(int totalSeconds) {
+        int minutes = totalSeconds / 60;
+        int seconds = totalSeconds % 60;
+        return String.format("%02d:%02d", minutes, seconds);
     }
 
     /**
@@ -279,7 +390,6 @@ public class GameView extends BorderPane {
     private File showFileChooser() {
         return GuiUtils.showFileChooser(this.getScene().getWindow(), false);
     }
-
 
     /**
      * Affiche une boîte de dialogue de victoire lorsque les conditions de

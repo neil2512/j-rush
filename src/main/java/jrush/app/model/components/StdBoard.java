@@ -5,7 +5,7 @@ import jrush.app.model.Vehicle;
 import jrush.app.model.util.Move;
 import jrush.app.model.util.Placement;
 import jrush.app.util.Position;
-import util.Contract;
+import jrush.app.util.Contract;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyVetoException;

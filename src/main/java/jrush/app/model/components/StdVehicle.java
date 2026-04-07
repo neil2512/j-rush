@@ -4,7 +4,7 @@ import javafx.scene.paint.Color;
 import jrush.app.model.Vehicle;
 import jrush.app.model.util.Placement;
 import jrush.app.util.Position;
-import util.Contract;
+import jrush.app.util.Contract;
 
 import java.beans.*;
 import java.util.ArrayList;

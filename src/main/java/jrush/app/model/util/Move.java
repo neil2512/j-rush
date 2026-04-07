@@ -2,7 +2,7 @@ package jrush.app.model.util;
 
 
 import jrush.app.model.Vehicle;
-import util.Contract;
+import jrush.app.util.Contract;
 
 import java.beans.PropertyVetoException;
 
@@ -12,11 +12,11 @@ import java.beans.PropertyVetoException;
  * <pre>
  * Constructeur :
  *      Entrée :
- *          Vehicle vehicle
- *          int delta
+ *          – Vehicle vehicle
+ *          – int delta
  *      Préconditions :
- *          vehicle != null
- *          delta != 0
+ *          – vehicle != null
+ *          – delta != 0
  * </pre>
  */
 public class Move {
@@ -44,18 +44,36 @@ public class Move {
     public String display() {
         if (vehicle.isHorizontal()) {
             if (delta < 0) {
-                return "("+vehicle.getId() +", " + -delta + " LEFT) ";
+                return "(" + vehicle.getId() + ", " + -delta + " LEFT) ";
             } else {
-                return "("+vehicle.getId() +", " + delta + " RIGHT) ";
+                return "(" + vehicle.getId() + ", " + delta + " RIGHT) ";
             }
         } else {
             if (delta < 0) {
-                return "("+vehicle.getId() +", " + -delta + " UP) ";
+                return "(" + vehicle.getId() + ", " + -delta + " UP) ";
 
             } else {
-                return "("+vehicle.getId() +", " + delta + " DOWN) ";
+                return "(" + vehicle.getId() + ", " + delta + " DOWN) ";
             }
         }
+    }
+
+    /**
+     * Retourne le véhicule impliqué dans ce déplacement.
+     *
+     * @return le véhicule impliqué dans ce déplacement.
+     */
+    public Vehicle getVehicle() {
+        return vehicle;
+    }
+
+    /**
+     * Retourne la distance du déplacement.
+     *
+     * @return la distance du déplacement.
+     */
+    public int getDelta() {
+        return delta;
     }
 
     // COMMANDES
