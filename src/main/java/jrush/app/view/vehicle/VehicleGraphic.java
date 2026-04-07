@@ -4,20 +4,28 @@ package jrush.app.view.vehicle;
 import javafx.scene.shape.Rectangle;
 import jrush.app.model.Vehicle;
 import jrush.app.view.board.BoardGraphic;
-import util.Contract;
+import jrush.app.util.Contract;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 /**
- * Classe qui représente graphiquement un véhicule sur le plateau de jeu.
+ * Classe qui représente graphiquement un véhicule sur le plateau de jeu. Ne
+ * connecte pas ses contrôleurs.
  *
  * <pre>
  * Constructeur :
  *      Entrée :
- *          Vehicle vehicle
+ *          – Vehicle vehicle
  *      Préconditions :
- *          vehicle != null
+ *          – vehicle != null
  * </pre>
  */
-public abstract class VehicleGraphic extends Rectangle {
+public class VehicleGraphic extends Rectangle {
+
+    // CONSTANTES
+
+    private static final double MARGIN = 6.0;
 
     // ATTRIBUTS
 
@@ -28,8 +36,13 @@ public abstract class VehicleGraphic extends Rectangle {
     public VehicleGraphic(Vehicle vehicle) {
         Contract.checkCondition(vehicle != null, "vehicle == null");
         this.vehicle = vehicle;
+
+        this.getStyleClass().add("vehicle-graphic");
+
+        this.setArcWidth(16);
+        this.setArcHeight(16);
+
         paint();
-        connectBaseControllers();
     }
 
     // OUTILS
@@ -40,12 +53,15 @@ public abstract class VehicleGraphic extends Rectangle {
      */
     protected void paint() {
         if (vehicle.isHorizontal()) {
-            setWidth(vehicle.getSize() * BoardGraphic.CELL_SIZE - 4);
-            setHeight(BoardGraphic.CELL_SIZE - 4);
+            setWidth((vehicle.getSize() * BoardGraphic.CELL_SIZE) -
+                     (2 * MARGIN));
+            setHeight(BoardGraphic.CELL_SIZE - (2 * MARGIN));
         } else {
-            setWidth(BoardGraphic.CELL_SIZE - 4);
-            setHeight(vehicle.getSize() * BoardGraphic.CELL_SIZE - 4);
+            setWidth(BoardGraphic.CELL_SIZE - (2 * MARGIN));
+            setHeight((vehicle.getSize() * BoardGraphic.CELL_SIZE) -
+                      (2 * MARGIN));
         }
+
         setFill(vehicle.getColor());
         updatePosition();
     }
@@ -55,20 +71,23 @@ public abstract class VehicleGraphic extends Rectangle {
      * véhicule sur le plateau de jeu.
      */
     protected void updatePosition() {
-        setX(vehicle.getPosition().getX() * BoardGraphic.CELL_SIZE + 2);
-        setY(vehicle.getPosition().getY() * BoardGraphic.CELL_SIZE + 2);
+        setX((vehicle.getPosition().getX() * BoardGraphic.CELL_SIZE) + MARGIN);
+        setY((vehicle.getPosition().getY() * BoardGraphic.CELL_SIZE) + MARGIN);
     }
 
     /**
-     * Connecte les contrôleurs de l'élément graphique.
+     * Connecte les contrôleurs de base de l'élément graphique.
      */
-    private void connectBaseControllers() {
-        vehicle.addPropertyChangeListener(evt -> {
-            if (evt.getPropertyName().equals(Vehicle.PROP_POSITION)) {
-                updatePosition();
-            }
-            if (evt.getPropertyName().equals(Vehicle.PROP_PLACEMENT)) {
-                paint();
+    protected void connectBaseControllers() {
+        vehicle.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (evt.getPropertyName().equals(Vehicle.PROP_POSITION)) {
+                    updatePosition();
+                }
+                if (evt.getPropertyName().equals(Vehicle.PROP_PLACEMENT)) {
+                    paint();
+                }
             }
         });
     }

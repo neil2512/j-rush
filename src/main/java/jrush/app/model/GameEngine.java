@@ -5,6 +5,7 @@ import jrush.app.model.util.Move;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Interface représentant le moteur de jeu du jeu. Elle permet de charger un
@@ -27,6 +28,7 @@ public interface GameEngine {
     // CONSTANTES
 
     String PROP_MOVECOUNT = "move_count";
+    String PROP_TIMER = "timer";
 
     // REQUÊTES
 
@@ -60,6 +62,15 @@ public interface GameEngine {
      * de jeu.
      */
     int getMoveCount();
+
+    /**
+     * Retourne le temps écoulé en secondes depuis le chargement du plateau de
+     * jeu.
+     *
+     * @return Le temps écoulé en secondes depuis le chargement du plateau de
+     * jeu.
+     */
+    int getTime();
 
     /**
      * Retourne un booléen décrivant l'état de victoire de la partie
@@ -119,6 +130,21 @@ public interface GameEngine {
     void loadBoard(String filename) throws IOException;
 
     /**
+     * Tente de charger un plateau à partir d'un flux d'entrée. Le flux doit
+     * être au format correct et contenir une configuration de plateau de jeu
+     * valide, sinon une exception est levée. En cas de réussite, les écouteurs
+     * de changements de propriété sont notifiés.
+     *
+     * <pre>
+     * Préconditions :
+     *      inputStream != null
+     * </pre>
+     *
+     * @param inputStream Le flux d'entrée à partir duquel charger le plateau
+     */
+    void loadBoard(InputStream inputStream) throws IOException;
+
+    /**
      * Tente d'enregistrer le plateau actuel du moteur de jeu dans un fichier.
      * Le fichier doit être au format correct pour pouvoir être chargé
      * ultérieurement, sinon une exception est levée.
@@ -137,8 +163,9 @@ public interface GameEngine {
     void saveBoard(String filename) throws IOException;
 
     /**
-     * Réinitialise le plateau de jeu à son état initial tel qu'il a été
-     * chargé. Les écouteurs de changements de propriété sont notifiés.
+     * Réinitialise le plateau de jeu à son état initial tel qu'il a été chargé.
+     * Réinitialise le nombre de coups et le timer. Les écouteurs de changements
+     * de propriété sont notifiés.
      *
      * <pre>
      * Préconditions :
@@ -216,6 +243,16 @@ public interface GameEngine {
      * selon les règles du jeu.
      */
     void redoBoardMove() throws PropertyVetoException;
+
+    /**
+     * Démarre le timer du moteur de jeu.
+     *
+     * <pre>
+     * Préconditions :
+     *      isLoaded()
+     * </pre>
+     */
+    void startTimer();
 
     /**
      * Ajoute un écouteur de changements de propriété au moteur de jeu.

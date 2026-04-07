@@ -6,7 +6,7 @@ import jrush.app.model.GameEngine;
 import jrush.app.model.Vehicle;
 import jrush.app.model.util.Move;
 import jrush.app.view.board.BoardGraphic;
-import util.Contract;
+import jrush.app.util.Contract;
 
 /**
  * Classe qui représente graphiquement un véhicule sur le plateau de jeu et
@@ -38,6 +38,8 @@ public class VehicleGraphicPlayer extends VehicleGraphic {
         super(vehicle);
         Contract.checkCondition(engine != null, "engine == null");
         this.engine = engine;
+
+        connectBaseControllers();
         connectControllers();
     }
 
@@ -47,7 +49,7 @@ public class VehicleGraphicPlayer extends VehicleGraphic {
      * Connecte les contrôleurs de l'élément graphique.
      */
     private void connectControllers() {
-        this.setOnMousePressed(new EventHandler<MouseEvent>() {
+        this.setOnMousePressed(new EventHandler<>() {
             @Override
             public void handle(MouseEvent event) {
                 anchorX = event.getSceneX();
@@ -59,7 +61,7 @@ public class VehicleGraphicPlayer extends VehicleGraphic {
             }
         });
 
-        this.setOnMouseDragged(new EventHandler<MouseEvent>() {
+        this.setOnMouseDragged(new EventHandler<>() {
             @Override
             public void handle(MouseEvent event) {
                 double dragDistance =
@@ -84,7 +86,7 @@ public class VehicleGraphicPlayer extends VehicleGraphic {
             }
         });
 
-        this.setOnMouseReleased(new EventHandler<MouseEvent>() {
+        this.setOnMouseReleased(new EventHandler<>() {
             @Override
             public void handle(MouseEvent event) {
                 int finalGridPos =

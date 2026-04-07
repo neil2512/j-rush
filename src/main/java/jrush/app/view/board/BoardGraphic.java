@@ -1,9 +1,7 @@
 package jrush.app.view.board;
 
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.*;
 import jrush.app.model.Board;
 
 import static jrush.app.model.Board.GRID_SIZE;
@@ -22,56 +20,64 @@ public class BoardGraphic extends Pane {
     public BoardGraphic() {
         this.setMinSize(CELL_SIZE * GRID_SIZE, CELL_SIZE * GRID_SIZE);
         this.setMaxSize(CELL_SIZE * GRID_SIZE, CELL_SIZE * GRID_SIZE);
+
         refresh();
     }
 
     // COMMANDES
 
     /**
-     * Rafraîchit l'affichage du plateau de jeu en redessinant la grille.
+     * Rafraîchit l'affichage du plateau de jeu en redessinant la grille et la
+     * sortie.
      */
     public void refresh() {
         getChildren().clear();
         drawGrid();
+        drawExit();
     }
 
     // OUTILS
 
     /**
-     * Dessine la grille du plateau de jeu en créant des rectangles pour chaque
-     * cellule.
+     * Dessine la grille du plateau de jeu en utilisant des lignes et un cadre.
+     * Les lignes sont espacées de CELL_SIZE pixels et le cadre entoure toute
+     * la grille.
      */
     private void drawGrid() {
-        for (int i = 0; i < GRID_SIZE; i++) {
-            for (int j = 0; j < GRID_SIZE; j++) {
-                Rectangle cell = new Rectangle(CELL_SIZE, CELL_SIZE);
-                cell.setFill(Color.TRANSPARENT);
-                cell.setStroke(Color.web("#2c3e50"));
-                cell.setX(i * CELL_SIZE);
-                cell.setY(j * CELL_SIZE);
-                this.getChildren().add(cell);
-            }
+        for (int i = 1; i < GRID_SIZE; i++) {
+            Line vLine = new Line(i * CELL_SIZE, 0, i * CELL_SIZE,
+                                  GRID_SIZE * CELL_SIZE);
+            vLine.getStyleClass().add("board-grid-line");
+            this.getChildren().add(vLine);
+
+            Line hLine = new Line(0, i * CELL_SIZE, GRID_SIZE * CELL_SIZE,
+                                  i * CELL_SIZE);
+            hLine.getStyleClass().add("board-grid-line");
+            this.getChildren().add(hLine);
         }
-        drawExit();
+
+        Rectangle frame =
+                new Rectangle(GRID_SIZE * CELL_SIZE, GRID_SIZE * CELL_SIZE);
+        frame.getStyleClass().add("board-frame");
+        this.getChildren().add(frame);
     }
 
     /**
-     * Dessine une ligne verticale pour indiquer la position de la sortie sur le
-     * plateau de jeu.
+     * Dessine une flèche pointant vers la sortie du plateau de jeu.
      */
     private void drawExit() {
         int xGrid = Board.EXIT_POSITION.getX();
         int yGrid = Board.EXIT_POSITION.getY();
 
-        double xPos = (xGrid + 1) * CELL_SIZE;
-        double yStart = yGrid * CELL_SIZE;
-        double yEnd = (yGrid + 1) * CELL_SIZE;
+        double xPos = (xGrid + 1) * CELL_SIZE + 3.0;
+        double yCenter = (yGrid + 0.5) * CELL_SIZE;
 
-        Line exitLine = new Line(xPos, yStart, xPos, yEnd);
+        Polygon triangle = new Polygon();
+        triangle.getPoints().addAll(xPos, yCenter - 12.0,
+                                    xPos + 14.0, yCenter,
+                                    xPos, yCenter + 12.0);
 
-        exitLine.setStroke(Color.BLACK);
-        exitLine.setStrokeWidth(4);
-
-        this.getChildren().add(exitLine);
+        triangle.getStyleClass().add("board-exit");
+        this.getChildren().add(triangle);
     }
 }

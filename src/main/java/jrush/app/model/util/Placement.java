@@ -1,7 +1,7 @@
 package jrush.app.model.util;
 
 import jrush.app.util.Position;
-import util.Contract;
+import jrush.app.util.Contract;
 
 /**
  * Cette classe représente le placement d'un véhicule sur un plateau, défini par

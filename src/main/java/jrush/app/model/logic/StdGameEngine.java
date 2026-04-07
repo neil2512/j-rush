@@ -1,12 +1,19 @@
 package jrush.app.model.logic;
 
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.util.Duration;
 import jrush.app.model.GameEngine;
 import jrush.app.model.Vehicle;
 import jrush.app.model.util.Move;
-import util.Contract;
+import jrush.app.util.Contract;
 
 import java.beans.PropertyVetoException;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class StdGameEngine extends AbstractEngine implements GameEngine {
 
@@ -14,12 +21,17 @@ public class StdGameEngine extends AbstractEngine implements GameEngine {
 
     private int moveCount;
 
+    private int secondsElapsed;
+    private Timeline timer;
+
     // CONSTRUCTEUR
 
     public StdGameEngine() {
         super();
 
         this.moveCount = 0;
+        this.secondsElapsed = 0;
+        setupTimer();
     }
 
     // REQUÊTES
@@ -31,9 +43,19 @@ public class StdGameEngine extends AbstractEngine implements GameEngine {
     }
 
     @Override
+    public int getTime() {
+        Contract.checkCondition(isLoaded(), "!isLoaded()");
+        return secondsElapsed;
+    }
+
+    @Override
     public boolean checkWinCondition() {
         Contract.checkCondition(isLoaded(), "!isLoaded()");
-        return board.checkWinCondition();
+        boolean win = board.checkWinCondition();
+        if (win) {
+            timer.stop();
+        }
+        return win;
     }
 
     @Override
@@ -51,8 +73,20 @@ public class StdGameEngine extends AbstractEngine implements GameEngine {
     @Override
     public void loadBoard(String filename) throws IOException {
         Contract.checkCondition(filename != null, "filename == null");
-        board = LevelHandler.loadBoard(filename);
-        setMoveCount(0);
+        applyLoadResult(LevelHandler.loadBoard(filename));
+    }
+
+    @Override
+    public void loadBoard(InputStream inputStream) throws IOException {
+        Contract.checkCondition(inputStream != null, "inputStream == null");
+        applyLoadResult(LevelHandler.loadBoard(inputStream));
+    }
+
+    @Override
+    public void saveBoard(String filename) throws IOException {
+        Contract.checkCondition(filename != null, "filename == null");
+        Contract.checkCondition(isLoaded(), "!isLoaded()");
+        LevelHandler.saveBoard(board, moveCount, secondsElapsed, filename);
     }
 
     @Override
@@ -60,6 +94,8 @@ public class StdGameEngine extends AbstractEngine implements GameEngine {
         Contract.checkCondition(isLoaded(), "!isLoaded()");
         board.reset();
         setMoveCount(0);
+        this.secondsElapsed = 0;
+        updateTimerValue();
     }
 
     @Override
@@ -94,12 +130,72 @@ public class StdGameEngine extends AbstractEngine implements GameEngine {
         setMoveCount(moveCount + 1);
     }
 
+    @Override
+    public void startTimer() {
+        Contract.checkCondition(isLoaded(), "!isLoaded()");
+        timer.play();
+    }
+
     // OUTILS
 
+    /**
+     * Applique les résultats du chargement d'un niveau au moteur de jeu. Cette
+     * méthode met à jour le plateau de jeu, le nombre de mouvements effectués
+     * et le temps écoulé en fonction des résultats du chargement. Les écouteurs
+     * de changements de propriété sont notifiés.
+     *
+     * <pre>
+     * Préconditions :
+     *      result != null
+     * </pre>
+     *
+     * @param result Le résultat du chargement d'un niveau, encapsulant le
+     * plateau de jeu, le nombre de mouvements effectués et le temps écoulé.
+     */
+    private void applyLoadResult(LevelHandler.LoadResult result) {
+        Contract.checkCondition(result != null, "result == null");
+
+        this.board = result.board();
+        this.secondsElapsed = result.time();
+        setMoveCount(result.moves());
+        updateTimerValue();
+    }
+
+    /**
+     * Met à jour le nombre de mouvements effectués et notifie les écouteurs de
+     * changements de propriété du changement.
+     *
+     * @param newCount le nouveau nombre de mouvements effectués
+     */
     private void setMoveCount(int newCount) {
         int oldCount = moveCount;
         moveCount = newCount;
         pcs.firePropertyChange(PROP_MOVECOUNT, oldCount, newCount);
     }
 
+    /**
+     * Configure le timer pour incrémenter le nombre de secondes écoulées toutes
+     * les secondes. Les écouteurs de changements de propriété sont notifiés à
+     * chaque incrémentation du timer. Le timer est configuré pour s'exécuter
+     * indéfiniment jusqu'à ce qu'il soit arrêté manuellement.
+     */
+    private void setupTimer() {
+        Duration sec = Duration.seconds(1);
+        timer = new Timeline(new KeyFrame(sec, new EventHandler<>() {
+            @Override
+            public void handle(ActionEvent event) {
+                secondsElapsed++;
+                updateTimerValue();
+            }
+        }));
+        this.timer.setCycleCount(Animation.INDEFINITE);
+    }
+
+    /**
+     * Notifie les écouteurs de changements de propriété que le nombre de
+     * secondes écoulées a été mis à jour.
+     */
+    private void updateTimerValue() {
+        pcs.firePropertyChange(PROP_TIMER, null, secondsElapsed);
+    }
 }

@@ -1,11 +1,9 @@
 package jrush.app.model.logic;
 
 import jrush.app.model.Board;
-import util.Contract;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.io.IOException;
 
 /**
  * Classe abstraite qui construit la base d'un moteur utilitaire, responsable de
@@ -51,12 +49,6 @@ public abstract class AbstractEngine {
     }
 
     // COMMANDES
-
-    public void saveBoard(String filename) throws IOException {
-        Contract.checkCondition(filename != null, "filename == null");
-        Contract.checkCondition(isLoaded(), "!isLoaded()");
-        LevelHandler.saveBoard(board, filename);
-    }
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         pcs.addPropertyChangeListener(listener);

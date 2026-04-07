@@ -2,17 +2,18 @@ package jrush.app.view;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import jrush.app.gui.ViewNavigator;
 import jrush.app.model.GameEngine;
-import util.Contract;
-
+import jrush.app.util.GuiUtils;
+import jrush.app.util.Contract;
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Vue d'accueil de l'application.
@@ -28,10 +29,6 @@ import java.io.File;
  * </pre>
  */
 public class HomeView extends VBox {
-
-    // CONSTANTES
-
-    private static final double SPACING = 20;
 
     // ATTRIBUTS
 
@@ -54,6 +51,7 @@ public class HomeView extends VBox {
 
         // VUE
         this.navigator = navigator;
+        this.navigator.updateTitle("Accueil");
         this.playButton = new Button("NIVEAUX CLASSIQUES");
         this.generateButton = new Button("DEFI ALÉATOIRE");
         this.importButton = new Button("CHARGER UN NIVEAU");
@@ -73,7 +71,21 @@ public class HomeView extends VBox {
      */
     private void setProperties() {
         setAlignment(Pos.CENTER);
-        setSpacing(SPACING);
+        setSpacing(25);
+        setPadding(new Insets(40));
+
+        getStyleClass().add("root");
+
+        Button[] buttons =
+                {playButton, generateButton, importButton, buildButton};
+        for (Button b : buttons) {
+            b.setPrefWidth(220);
+            b.setPrefHeight(40);
+            b.getStyleClass().add("button");
+        }
+
+        buildButton.getStyleClass().remove("button");
+        buildButton.getStyleClass().add("button-secondary");
     }
 
     /**
@@ -81,6 +93,8 @@ public class HomeView extends VBox {
      */
     private void placeComponents() {
         Label title = new Label("JRUSH");
+        title.getStyleClass().add("title-main");
+        VBox.setMargin(title, new Insets(0, 0, 80, 0));
         getChildren().addAll(title, playButton, generateButton, importButton,
                              buildButton);
     }
@@ -92,29 +106,34 @@ public class HomeView extends VBox {
         playButton.setOnAction(new EventHandler<>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                navigator.showGame();
+                navigator.showLevels();
+            }
+        });
+
+
+        generateButton.setOnAction(new EventHandler<>() {
+            @Override
+            public void handle(ActionEvent event) {
+                GuiUtils.showInfo("Information", "Génération indisponible",
+                                  "La génération est actuellement " +
+                                  "indisponible. Ajoutée à la prochaine mise " +
+                                  "à jour.");
             }
         });
 
         importButton.setOnAction(new EventHandler<>() {
             @Override
             public void handle(ActionEvent event) {
-                FileChooser fileChooser = new FileChooser();
-                fileChooser.setTitle("Charger un niveau");
-                fileChooser.getExtensionFilters().add(
-                        new FileChooser.ExtensionFilter("Fichiers Texte",
-                                                        "*.txt")
-                );
-
-                Window stage = importButton.getScene().getWindow();
-                File selectedFile = fileChooser.showOpenDialog(stage);
+                Window window = importButton.getScene().getWindow();
+                File selectedFile = GuiUtils.showFileChooser(window, true);
                 if (selectedFile != null) {
                     try {
                         gameEngine.loadBoard(selectedFile.getAbsolutePath());
                         navigator.showGame();
-                    } catch (java.io.IOException e) {
-                        System.err.println("Erreur lors du chargement : " +
-                                           e.getMessage());
+                    } catch (IOException e) {
+                        GuiUtils.showError("Erreur de lecture", e.getMessage());
+                    } catch (Exception e) {
+                        GuiUtils.showError("Fichier invalide", e.getMessage());
                     }
                 }
             }

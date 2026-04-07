@@ -5,7 +5,7 @@ import jrush.app.model.Vehicle;
 import jrush.app.model.util.Move;
 import jrush.app.model.util.Placement;
 import jrush.app.util.Position;
-import util.Contract;
+import jrush.app.util.Contract;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyVetoException;
@@ -76,6 +76,11 @@ public class StdBoard implements Board, VetoableChangeListener {
     }
 
     @Override
+    public int getHistoryCursor() {
+        return cursor;
+    }
+
+    @Override
     public boolean canUndo() {
         return cursor >= 0;
     }
@@ -112,19 +117,11 @@ public class StdBoard implements Board, VetoableChangeListener {
     }
 
     public boolean checkWinCondition() {
-        for (Vehicle v : getVehicles()) {
-            if (v.getId().equals(Vehicle.WIN_CAR.getId())) {
-
-                boolean correctRow =
-                        v.getPosition().getY() == Board.EXIT_POSITION.getY();
-                boolean correctCol =
-                        (v.getPosition().getX() + v.getSize() - 1) ==
-                        Board.EXIT_POSITION.getX();
-
-                return correctCol && correctRow;
-            }
+        Vehicle redCar = findVehicle(Vehicle.WIN_CAR);
+        if (redCar == null) {
+            return false;
         }
-        return false;
+        return redCar.getTail().equals(Board.EXIT_POSITION);
     }
 
     @Override
@@ -169,7 +166,14 @@ public class StdBoard implements Board, VetoableChangeListener {
 
     @Override
     public void setHistory(List<Move> history) {
+        Contract.checkCondition(history != null, "history == null");
         this.history = history;
+    }
+
+    public void setHistoryCursor(int cursor) {
+        Contract.checkCondition(-1 <= cursor && cursor < history.size(),
+                "cursor < -1 || history.size() <= cursor");
+        this.cursor = cursor;
     }
 
     @Override
@@ -282,22 +286,14 @@ public class StdBoard implements Board, VetoableChangeListener {
      * @return true si les véhicules se chevauchent, false sinon
      */
     private boolean intersect(Position p1, boolean h1, Vehicle v1, Vehicle v2) {
-        Position p2 = v2.getPosition();
-        boolean h2 = v2.isHorizontal();
-        int s1 = v1.getSize();
-        int s2 = v2.getSize();
 
-        for (int i = 0; i < s1; i++) {
-            int x1 = h1 ? p1.getX() + i : p1.getX();
-            int y1 = h1 ? p1.getY() : p1.getY() + i;
 
-            for (int j = 0; j < s2; j++) {
-                int x2 = h2 ? p2.getX() + j : p2.getX();
-                int y2 = h2 ? p2.getY() : p2.getY() + j;
+        List<Position> proposedPositions = v1.getOccupiedPositionsAt(p1, h1);
+        List<Position> otherPositions = v2.getOccupiedPositions();
 
-                if (x1 == x2 && y1 == y2) {
-                    return true;
-                }
+        for (Position p : proposedPositions) {
+            if (otherPositions.contains(p)) {
+                return true;
             }
         }
         return false;

@@ -7,6 +7,7 @@ import jrush.app.util.Position;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
+import java.util.List;
 
 /**
  * Un véhicule est un objet qui a une position, une taille, une orientation et
@@ -99,6 +100,38 @@ public interface Vehicle {
      * @return La position du véhicule.
      */
     Position getPosition();
+
+    /**
+     * Retourne la position de la queue du véhicule. La position de la queue est
+     * un objet de type Position qui indique les coordonnées de la case en bas à
+     * droite du véhicule sur le plateau.
+     *
+     * @return La position de la queue du véhicule.
+     */
+    Position getTail();
+
+    /**
+     * Retourne une liste des positions occupées par le véhicule sur le
+     * plateau.
+     *
+     * @return Une liste des positions occupées par le véhicule sur le plateau.
+     */
+    List<Position> getOccupiedPositions();
+
+    /**
+     * Retourne une liste des positions occupées par le véhicule si celui-ci
+     * était placé à une position donnée avec une orientation donnée.
+     *
+     * @param position La position à laquelle le véhicule serait placé
+     * @param horizontal L'orientation à laquelle le véhicule serait placé
+     *
+     * @return Une liste des positions occupées par le véhicule si celui-ci
+     * était placé à une position donnée avec une orientation donnée.
+     */
+    List<Position> getOccupiedPositionsAt(
+            Position position,
+            boolean horizontal
+    );
 
     /**
      * Retourne un tableau des écouteurs de veto de changements de propriétés

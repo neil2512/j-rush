@@ -83,6 +83,13 @@ public interface Board {
     List<Move> getHistory();
 
     /**
+     * Retourne la position du curseur dans l'historique des mouvements.
+     *
+     * @return La position du curseur dans l'historique des mouvements.
+     */
+    int getHistoryCursor();
+
+    /**
      * Retourne true si un mouvement peut être annulé, false sinon.
      *
      * @return true si un mouvement peut être annulé, false sinon.
@@ -160,8 +167,23 @@ public interface Board {
      *
      * @param history La liste des mouvements à définir, dans l'ordre
      * chronologique
+     *
+     * <pre>
+     * Préconditions :
+     *      history != null
+     * </pre>
      */
     void setHistory(List<Move> history);
+
+    /**
+     * Définit la position du curseur dans l'historique des mouvements.
+     *
+     * <pre>
+     * Préconditions :
+     *      -1 <= cursor && cursor < getHistory().size()
+     * </pre>
+     */
+    void setHistoryCursor(int cursor);
 
     /**
      * Enregistre un mouvement dans l'historique du plateau.
