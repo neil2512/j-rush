@@ -21,6 +21,8 @@ résolveur efficace de niveau.
   automatique grâce à l'implémentation interne d'une algorithmique adaptée.
 * **Historique temporel** : Système d'annulation et rétablissement des coups 
   effectués.
+* **Génération de défi aléatoire** : Système de génération de plateau 
+  garantissant un minimum de HUIT coups pour leur résolution.
 
 ---
 
@@ -66,10 +68,10 @@ garantir sa robustesse et son évolutivité :
 ### Option 1 : Lancement rapide
 C'est la méthode la plus simple pour jouer immédiatement.
 1. Téléchargez la dernière version exécutable (`.jar`) depuis l'onglet 
-   **Releases** de ce dépôt GitHub.
+   **Releases** de ce dépôt GitHub. (Aussi disponible dans le répertoire `exe`).
 2. Lancez le jeu via votre terminal avec la commande suivante :
    ```bash
-   java -jar jrush-1.0.jar
+   java -jar Jrush.jar
    ```
    *(Ou double-cliquez simplement sur le fichier .jar si votre système 
    d'exploitation est configuré pour).*

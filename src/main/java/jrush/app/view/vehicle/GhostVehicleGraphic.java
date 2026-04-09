@@ -160,7 +160,7 @@ public class GhostVehicleGraphic extends Rectangle {
      * manipulation du véhicule fantôme.
      */
     private void setDefaultApparence() {
-        setOpacity(0.4);
+        setOpacity(0.6);
         setFill(type.getColor());
         setStroke(Color.WHITE);
         getStrokeDashArray().addAll(5.0, 5.0);
