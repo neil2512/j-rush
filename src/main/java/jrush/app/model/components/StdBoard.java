@@ -256,10 +256,18 @@ public class StdBoard implements Board, VetoableChangeListener {
             Vehicle vehicle
     ) {
         int size = vehicle.getSize();
+        int x = position.getX();
+        int y = position.getY();
 
-        if (position.getX() < 0 || position.getY() < 0 ||
-            (horizontal && position.getX() + size > GRID_SIZE) ||
-            (!horizontal && position.getY() + size > GRID_SIZE)) {
+        if (x < 0 || x >= GRID_SIZE || y < 0 || y >= GRID_SIZE) {
+            return false;
+        }
+
+        if (horizontal && x + size > GRID_SIZE) {
+            return false;
+        }
+
+        if (!horizontal && y + size > GRID_SIZE) {
             return false;
         }
 
