@@ -7,6 +7,23 @@ import jrush.app.util.Contract;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Classe représentant une heuristique basée sur le nombre total de voitures
+ * bloquantes pour un solveur de jeu. Cette heuristique estime le coût restant
+ * pour atteindre la victoire en comptant le nombre total de voitures qui
+ * bloquent directement ou indirectement le chemin du véhicule rouge vers la
+ * sortie. Elle est utilisée pour guider la recherche d'une solution en donnant
+ * une estimation du coût restant à chaque étape de la recherche.
+ *
+ * <pre>
+ * Constructeur :
+ *      Entrée :
+ *          – Board b
+ *      Postconditions :
+ *          – getBoard() == b
+ *          – getRedCar() == b.findVehicle(VehicleType.RED_CAR)
+ * </pre>
+ */
 public class AllBlockingCars extends BlockingCars {
 
     // ATTRIBUTS

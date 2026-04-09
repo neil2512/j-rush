@@ -45,8 +45,6 @@ public class StdBuildEngine extends AbstractEngine implements BuildEngine {
             return false;
         }
         try {
-            StdGameEngine tempEngine = new StdGameEngine();
-
             AStarSolver solver = new AStarSolver(this.board);
             List<Move> solution = solver.solve();
 
