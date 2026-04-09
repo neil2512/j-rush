@@ -199,12 +199,12 @@
 }
 
 .status-solvable {
-    -fx-background-color: #27ae60;
+    -fx-background-color: #A1C067;
     -fx-effect: dropshadow(three-pass-box, rgba(39, 174, 96, 0.4), 10, 0, 0, 0);
 }
 
 .status-unsolvable {
-    -fx-background-color: #e74c3c;
+    -fx-background-color: #E38B6D;
     -fx-effect: dropshadow(three-pass-box, rgba(231, 76, 60, 0.4), 10, 0, 0, 0);
 }
 

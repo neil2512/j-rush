@@ -6,6 +6,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * Interface représentant le moteur de jeu du jeu. Elle permet de charger un
@@ -62,6 +63,34 @@ public interface GameEngine {
      * de jeu.
      */
     int getMoveCount();
+
+    /**
+     * Retourne une liste des mouvements optimaux nécessaires pour résoudre le
+     * plateau de jeu actuellement chargé.
+     *
+     * <pre>
+     * Préconditions :
+     *      isLoaded()
+     * </pre>
+     *
+     * @return Une liste des mouvements optimaux nécessaires pour résoudre le
+     * plateau de jeu actuellement chargé.
+     */
+    List<Move> getCachedSolution();
+
+    /**
+     * Retourne le nombre optimal de mouvements nécessaires pour résoudre le
+     * plateau de jeu actuellement chargé.
+     *
+     * <pre>
+     * Préconditions :
+     *      isLoaded()
+     * </pre>
+     *
+     * @return Le nombre optimal de mouvements nécessaires pour résoudre le
+     * plateau de jeu actuellement chargé.
+     */
+    int getOptimalMoves();
 
     /**
      * Retourne le temps écoulé en secondes depuis le chargement du plateau de
@@ -143,6 +172,16 @@ public interface GameEngine {
      * @param inputStream Le flux d'entrée à partir duquel charger le plateau
      */
     void loadBoard(InputStream inputStream) throws IOException;
+
+    /**
+     * Charge un plateau généré aléatoirement. Les écouteurs de changements de
+     * propriété sont notifiés.
+     *
+     * @param board Le plateau de jeu généré à charger
+     *
+     * @throws IOException Si le plateau est invalide.
+     */
+    void loadGeneratedBoard(Board board) throws IOException;
 
     /**
      * Tente d'enregistrer le plateau actuel du moteur de jeu dans un fichier.

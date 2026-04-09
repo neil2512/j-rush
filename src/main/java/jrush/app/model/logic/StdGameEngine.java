@@ -6,22 +6,30 @@ import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.util.Duration;
+import jrush.app.model.Board;
 import jrush.app.model.GameEngine;
 import jrush.app.model.Vehicle;
+import jrush.app.model.logic.solver.AStarSolver;
 import jrush.app.model.util.Move;
 import jrush.app.util.Contract;
 
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+
+import static jrush.app.model.logic.LevelHandler.DEFAULT_MOVE;
+import static jrush.app.model.logic.LevelHandler.DEFAULT_TIME;
 
 public class StdGameEngine extends AbstractEngine implements GameEngine {
 
     // ATTRIBUTS
 
     private int moveCount;
-
     private int secondsElapsed;
+
+    private List<Move> cachedSolution;
+
     private Timeline timer;
 
     // CONSTRUCTEUR
@@ -40,6 +48,18 @@ public class StdGameEngine extends AbstractEngine implements GameEngine {
     public int getMoveCount() {
         Contract.checkCondition(isLoaded(), "!isLoaded()");
         return moveCount;
+    }
+
+    @Override
+    public List<Move> getCachedSolution() {
+        Contract.checkCondition(isLoaded(), "!isLoaded()");
+        return cachedSolution;
+    }
+
+    @Override
+    public int getOptimalMoves() {
+        Contract.checkCondition(isLoaded(), "!isLoaded()");
+        return cachedSolution.size();
     }
 
     @Override
@@ -80,6 +100,15 @@ public class StdGameEngine extends AbstractEngine implements GameEngine {
     public void loadBoard(InputStream inputStream) throws IOException {
         Contract.checkCondition(inputStream != null, "inputStream == null");
         applyLoadResult(LevelHandler.loadBoard(inputStream));
+    }
+
+    @Override
+    public void loadGeneratedBoard(Board board) throws IOException {
+        Contract.checkCondition(board != null, "board == null");
+
+        LevelHandler.LoadResult result =
+                new LevelHandler.LoadResult(board, DEFAULT_MOVE, DEFAULT_TIME);
+        applyLoadResult(result);
     }
 
     @Override
@@ -139,10 +168,14 @@ public class StdGameEngine extends AbstractEngine implements GameEngine {
     // OUTILS
 
     /**
-     * Applique les résultats du chargement d'un niveau au moteur de jeu. Cette
-     * méthode met à jour le plateau de jeu, le nombre de mouvements effectués
-     * et le temps écoulé en fonction des résultats du chargement. Les écouteurs
-     * de changements de propriété sont notifiés.
+     * Applique le résultat du chargement d'un niveau au moteur de jeu. Le
+     * résultat doit être non nul et doit contenir un plateau de jeu valide. Si
+     * le plateau de jeu chargé est insoluble, une IOException est levée pour
+     * signaler que le niveau ne peut pas être chargé. En cas de succès, le
+     * moteur de jeu est mis à jour avec le plateau de jeu chargé, le nombre de
+     * mouvements effectués et le temps écoulé. Le cache de solution est
+     * également mis à jour en utilisant un solveur A* pour trouver la solution
+     * optimale du niveau chargé.
      *
      * <pre>
      * Préconditions :
@@ -151,11 +184,29 @@ public class StdGameEngine extends AbstractEngine implements GameEngine {
      *
      * @param result Le résultat du chargement d'un niveau, encapsulant le
      * plateau de jeu, le nombre de mouvements effectués et le temps écoulé.
+     *
+     * @throws IOException Si le plateau de jeu chargé est insoluble et ne peut
+     * pas être chargé.
      */
-    private void applyLoadResult(LevelHandler.LoadResult result) {
+    private void applyLoadResult(LevelHandler.LoadResult result)
+            throws IOException {
         Contract.checkCondition(result != null, "result == null");
 
         this.board = result.board();
+
+        try {
+            AStarSolver solver = new AStarSolver(this.board);
+            this.cachedSolution = solver.solve();
+        } catch (Exception e) {
+            this.cachedSolution = null;
+        }
+
+        if (this.cachedSolution == null || this.cachedSolution.isEmpty()) {
+            this.board = null;
+            throw new IOException(
+                    "Le niveau est insoluble et ne peut pas être chargé.");
+        }
+
         this.secondsElapsed = result.time();
         setMoveCount(result.moves());
         updateTimerValue();
