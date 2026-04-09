@@ -13,9 +13,6 @@ import jrush.app.model.Board;
 import jrush.app.model.GameEngine;
 import jrush.app.model.Vehicle;
 import jrush.app.model.components.VehicleType;
-//import jrush.app.model.logic.solver.AStarSolver;
-import jrush.app.model.logic.solver.AStarSolver;
-import jrush.app.model.logic.solver.Solver;
 import jrush.app.model.util.Move;
 import jrush.app.util.GuiUtils;
 import jrush.app.view.board.BoardGraphic;
@@ -51,6 +48,10 @@ import java.util.List;
  * </pre>
  */
 public class GameView extends BorderPane {
+
+    // CONSTANTES
+
+    private static final int MAX_SCORE = 10000;
 
     // ATTRIBUTS
 
@@ -323,45 +324,31 @@ public class GameView extends BorderPane {
         solveButton.setOnAction(new EventHandler<>() {
             @Override
             public void handle(ActionEvent event) {
+                List<Move> rawSolution = gameEngine.getCachedSolution();
+
                 gameEngine.resetBoard();
 
-                Solver solver = new AStarSolver(gameEngine.getBoard());
+                List<Move> realHistory = new ArrayList<>();
+                Board realBoard = gameEngine.getBoard();
 
-                try {
-                    List<Move> rawSolution = solver.solve();
-
-                    if (rawSolution == null || rawSolution.isEmpty()) {
-                        throw new Exception("Aucune solution trouvée.");
-                    }
-
-                    List<Move> realHistory = new ArrayList<>();
-                    Board realBoard = gameEngine.getBoard();
-
-                    for (Move m : rawSolution) {
-                        Vehicle realVehicle = realBoard.findVehicle(
-                                VehicleType.fromId(m.getVehicle().getId()));
-                        realHistory.add(new Move(realVehicle, m.getDelta()));
-                    }
-
-                    realBoard.setHistory(realHistory);
-                    realBoard.setHistoryCursor(-1);
-
-                    updateControls();
-
-                    GuiUtils.showInfo("Solution prête",
-                                      "Le puzzle a été réinitialisé à " +
-                                      "son état d'origine.",
-                                      "Utilisez le bouton 'Rétablir' pour " +
-                                      "parcourir les " +
-                                      realHistory.size() +
-                                      " coups de la solution.");
-
-                } catch (Exception e) {
-                    GuiUtils.showError(
-                            "Erreur de résolution",
-                            "Impossible de résoudre le niveau : " +
-                            e.getMessage());
+                for (Move move : rawSolution) {
+                    Vehicle realVehicle = realBoard.findVehicle(
+                            VehicleType.fromId(move.getVehicle().getId()));
+                    realHistory.add(new Move(realVehicle, move.getDelta()));
                 }
+
+                realBoard.setHistory(realHistory);
+                realBoard.setHistoryCursor(-1);
+
+                updateControls();
+
+                GuiUtils.showInfo("Solution prête",
+                                  "Le puzzle a été réinitialisé à " +
+                                  "son état d'origine.",
+                                  "Utilisez le bouton 'Rétablir' pour " +
+                                  "parcourir les " +
+                                  realHistory.size() +
+                                  " coups de la solution.");
             }
         });
     }
@@ -399,15 +386,21 @@ public class GameView extends BorderPane {
      */
     private void showVictoryPopup() {
         int moves = gameEngine.getMoveCount();
-        int score = Math.max(0, 5000 - (moves * 100));
+        int minMoves = gameEngine.getOptimalMoves();
+        int time = gameEngine.getTime();
+
+        int score = MAX_SCORE - ((moves - minMoves) * 150) - (time * 10);
+        score = Math.max(0, score);
 
         String stats = String.format(
-                "Statistiques de la partie :\n" + "- Nombre de coups : %d\n" +
-                "- Temps : %s\n\n" + "Votre score final : %d points", moves,
-                timerLabel.getText(), score);
+                "Statistiques de la partie :\n" +
+                "- Coups : %d (Record optimal : %d)\n" +
+                "- Temps : %s\n\n" +
+                "Score final : %d points",
+                moves, minMoves, timerLabel.getText(), score);
 
-        GuiUtils.showInfo("Félicitations !",
-                          "Vous avez libéré la voiture rouge ", stats);
+        GuiUtils.showInfo("Félicitations !", "Sortie débloquée !", stats);
+
         gameEngine.removePropertyChangeListener(gameListener);
         navigator.showHome();
     }

@@ -8,7 +8,8 @@ import jrush.app.model.components.VehicleType;
 
 import jrush.app.model.logic.solver.heuristic.Heuristic;
 import jrush.app.model.logic.solver.heuristic.AllBlockingCars;
-import jrush.app.model.logic.solver.util.Price;
+import jrush.app.model.logic.solver.util.Couple;
+import jrush.app.model.logic.solver.util.Cost;
 import jrush.app.model.logic.solver.util.Quadruple;
 import jrush.app.model.logic.solver.util.GameComparator;
 import jrush.app.model.util.Move;
@@ -40,14 +41,13 @@ public class AStarSolver extends Solver {
 
     private final PriorityQueue<Quadruple<Board, List<Move>, Heuristic, Integer>>
             priorityQueue;
-    private final List<Quadruple<Board, List<Move>, Heuristic, Integer>>
-            alreadyVisited;
+    private final Map<Board, Couple<List<Move>, Integer>> alreadyVisited;
 
     // CONSTRUCTEUR
     public AStarSolver(Board board) {
         super(board);
         this.priorityQueue = new PriorityQueue<>(new GameComparator());
-        this.alreadyVisited = new ArrayList<>();
+        this.alreadyVisited = new HashMap<>();
     }
 
     //REQUETES
@@ -57,10 +57,10 @@ public class AStarSolver extends Solver {
 
         List<Move> initSolution = new ArrayList<>();
         Heuristic heuristicInitial = new AllBlockingCars(board);
-        int pInitial = new Price(initSolution, heuristicInitial).getPrice();
+        int pInitial = new Cost(initSolution, heuristicInitial).getPrice();
 
-        priorityQueue.add(new Quadruple<>(board, initSolution,
-                                          heuristicInitial, pInitial));
+        priorityQueue.add(new Quadruple<>(board, initSolution, heuristicInitial,
+                                          pInitial));
 
         while (!priorityQueue.isEmpty()) {
 
@@ -73,7 +73,10 @@ public class AStarSolver extends Solver {
                 return solution;
             }
 
-            if (!containsOrContainsBetterBoard(temporary)) {
+            Couple<List<Move>, Integer> solutionPriceCouple =
+                    new Couple<>(solution, temporary.fourthElement());
+
+            if (!containsOrContainsBetterBoard(board, solutionPriceCouple)) {
 
                 for (Vehicle v : board.getVehicles()) {
                     for (int distance = -4; distance <= 4; distance++) {
@@ -82,12 +85,14 @@ public class AStarSolver extends Solver {
                         }
 
                         Position oldPos = v.getPosition();
-                        Position newPos = v.isHorizontal() ? new Position(
-                                oldPos.getX() + distance, oldPos.getY())
-                                                           : new Position(
-                                                                   oldPos.getX(),
-                                                                   oldPos.getY() +
-                                                                   distance);
+                        Position newPos = v.isHorizontal() ?
+                                          new Position(
+                                                  oldPos.getX() + distance,
+                                                  oldPos.getY())
+                                                           :
+                                          new Position(
+                                                  oldPos.getX(),
+                                                  oldPos.getY() + distance);
 
 
                         if (board.canVehicleMove(v, oldPos, newPos)) {
@@ -104,11 +109,11 @@ public class AStarSolver extends Solver {
 
                             Heuristic newHeuristic =
                                     new AllBlockingCars(newBoard);
+                            Cost cost = new Cost(newSolution, newHeuristic);
                             priorityQueue.add(
                                     new Quadruple<>(newBoard, newSolution,
                                                     newHeuristic,
-                                                    new Price(newSolution,
-                                                              newHeuristic).getPrice()));
+                                                    cost.getPrice()));
                         }
                     }
                 }
@@ -120,71 +125,38 @@ public class AStarSolver extends Solver {
     // OUTILS
 
     /**
-     * Vérifie si la liste alreadyVisited contient le plateau du quadruple passé
-     * en paramètre ou un plateau équivalent avec un coût total plus élevé. Si
-     * un plateau équivalent avec un coût total plus élevé est trouvé, il est
-     * remplacé par le quadruple actuel dans la liste alreadyVisited.
+     * Vérifie si la liste alreadyVisited contient un plateau équivalent au
+     * plateau passé en paramètre avec un coût total plus élevé ou égal. Si un
+     * plateau équivalent est trouvé avec un coût total plus élevé ou égal, true
+     * est retourné, sinon false est retourné.
      *
      * <pre>
      * Préconditions :
-     *      currentElement != null
+     *      spCouple != null
      * </pre>
      *
-     * @param currentElement Le quadruple contenant le plateau à vérifier, la
-     * solution associée, l'heuristique et le coût total.
+     * @param board Le plateau à vérifier pour trouver un plateau équivalent
+     * dans la liste alreadyVisited.
+     * @param spCouple Le couple contenant la solution et le coût total associé
+     * au plateau à vérifier.
      *
      * @return true si la liste alreadyVisited contient un plateau équivalent
      * avec un coût total plus élevé ou égal, false sinon.
      */
     private boolean containsOrContainsBetterBoard(
-            Quadruple<Board, List<Move>, Heuristic, Integer> currentElement
+            Board board, Couple<List<Move>, Integer> spCouple
     ) {
-        Contract.checkCondition(currentElement != null);
-        Quadruple<Board, List<Move>, Heuristic, Integer> result =
-                containsBoard(currentElement.firstElement());
-        if (result != null) {
-            if (currentElement.fourthElement() < result.fourthElement()) {
-                this.alreadyVisited.remove(result);
-                this.alreadyVisited.add(currentElement);
-                return false;
-            } else {
+        Contract.checkCondition(spCouple != null);
+
+        if (alreadyVisited.containsKey(board)) {
+            Integer oldPrice = alreadyVisited.get(board).secondElement();
+
+            if (oldPrice != null && oldPrice <= spCouple.secondElement()) {
                 return true;
             }
-        } else {
-            this.alreadyVisited.add(currentElement);
-            return false;
+
         }
-
-
-    }
-
-    /**
-     * Vérifie si la liste alreadyVisited contient un plateau équivalent au
-     * plateau passé en paramètre. Si un plateau équivalent est trouvé, le
-     * quadruple correspondant est retourné, sinon null est retourné.
-     *
-     * <pre>
-     * Préconditions :
-     *      board != null
-     * </pre>
-     *
-     * @param board Le plateau à vérifier pour trouver un plateau équivalent
-     * dans la liste alreadyVisited.
-     *
-     * @return Le quadruple contenant le plateau équivalent, la solution
-     * associée, l'heuristique et le coût total, ou null si aucun plateau
-     * équivalent n'est trouvé.
-     */
-    private Quadruple<Board, List<Move>, Heuristic, Integer> containsBoard(
-            Board board
-    ) {
-        Contract.checkCondition(board != null);
-        for (Quadruple<Board, List<Move>, Heuristic, Integer> e : this.alreadyVisited) {
-            Board boardFromElement = e.firstElement();
-            if (board.equals(boardFromElement)) {
-                return e;
-            }
-        }
-        return null;
+        alreadyVisited.put(board, spCouple);
+        return false;
     }
 }
